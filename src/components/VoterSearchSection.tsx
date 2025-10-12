@@ -249,7 +249,7 @@ export function VoterSearchSection({
   };
 
   const callContact = () => {
-    window.location.href = "tel:+919415451856";
+    window.location.href = "tel:+919415300191";
   };
 
   const handleReset = () => {
@@ -403,7 +403,7 @@ export function VoterSearchSection({
                       </p>
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                         <a 
-                          href="tel:+919415451856"
+                          href="tel:+919415300191"
                           className="text-[28px] sm:text-[32px] text-[#0A2647] hover:text-[#d32f2f] transition-colors flex items-center gap-3"
                         >
                           <Phone className="w-8 h-8" />

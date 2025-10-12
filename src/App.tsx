@@ -232,14 +232,14 @@ export default function App() {
                     {t.contact.contactNumbers}
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <a href="tel:+919415451856" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
-                      📞 +91 94154 51856
+                    <a href="tel:+919415300191" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
+                      📞 +91 94153 00191
                     </a>
                     <a href="tel:+917905748686" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
                       📞 +91 79057 48686
                     </a>
-                    <a href="tel:+919514451856" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
-                      📞 +91 95144 51856
+                    <a href="tel:+919415451856" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
+                      📞 +91 94154 51856
                     </a>
                     <a href="tel:+919415819786" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
                       📞 +91 94158 19786
