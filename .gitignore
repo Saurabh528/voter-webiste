@@ -33,3 +33,11 @@ dist-ssr
 .DS_Store
 Thumbs.db
 
+# Backend data
+backend/data/voters.json
+backend/node_modules
+
+# Excel temp files
+~$*.xlsx
+~$*.xls
+

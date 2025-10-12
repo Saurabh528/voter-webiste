@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card } from "./ui/card";
 import { Phone, X } from "lucide-react";
+import { capturePhone } from "../utils/api";
 
 interface PhoneCaptureModalProps {
   onClose: () => void;
@@ -19,16 +20,28 @@ export function PhoneCaptureModal({ onClose, translations: t }: PhoneCaptureModa
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!phone.trim()) return;
     
-    // In real implementation, send to backend
-    console.log("Phone captured:", phone);
-    setSubmitted(true);
-    
-    setTimeout(() => {
-      onClose();
-    }, 1500);
+    try {
+      await capturePhone({
+        phoneNumber: phone.trim(),
+        source: 'modal'
+      });
+      console.log("Phone captured:", phone);
+      setSubmitted(true);
+      
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (error) {
+      console.error("Error capturing phone:", error);
+      // Still close modal even if API fails
+      setSubmitted(true);
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    }
   };
 
   return (

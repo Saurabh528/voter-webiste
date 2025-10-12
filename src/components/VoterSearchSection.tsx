@@ -8,31 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { CheckCircle2, XCircle, Search, MessageSquare, Phone } from "lucide-react";
 import { upDistricts } from "../utils/translations";
-
-// Mock voter database
-const voterDatabase = [
-  {
-    name: "राजेश कुमार शर्मा",
-    enrollmentNumber: "UP/12345/2010",
-    copNumber: "COP-UP-12345-2010",
-    address: "123, बार एसोसिएशन बिल्डिंग, हजरतगंज, लखनऊ - 226001",
-    district: "लखनऊ"
-  },
-  {
-    name: "प्रिया सिंह",
-    enrollmentNumber: "UP/67890/2015",
-    copNumber: "COP-UP-67890-2015",
-    address: "456, कोर्ट रोड, सिविल लाइन्स, कानपुर - 208001",
-    district: "कानपुर नगर"
-  },
-  {
-    name: "अरुण कुमार त्रिपाठी",
-    enrollmentNumber: "UP/11111/2008",
-    copNumber: "COP-UP-11111-2008",
-    address: "789, न्यायालय परिसर, सिविल लाइन्स, प्रयागराज - 211001",
-    district: "प्रयागराज"
-  }
-];
+import { searchByEnrollment, searchByNameDistrict } from "../utils/api";
+import type { VoterResult as ApiVoterResult } from "../utils/api";
 
 interface VoterResult {
   name: string;
@@ -102,67 +79,91 @@ export function VoterSearchSection({
     setShowPhonePrompt(true);
   };
 
-  const executeSearch = () => {
+  const executeSearch = async () => {
     if (!pendingSearchType) return;
 
     // Save phone number if provided
     if (tempPhone.trim()) {
       setPhoneNumber(tempPhone);
-      saveSearchData({
-        type: pendingSearchType,
-        phoneNumber: tempPhone,
-        enrollmentNumber: pendingSearchType === "enrollment" ? enrollmentNumber : undefined,
-        name: pendingSearchType === "name-district" ? name : undefined,
-        district: pendingSearchType === "name-district" ? district : undefined
-      });
     }
 
     setIsSearching(true);
     setShowPhonePrompt(false);
 
-    setTimeout(() => {
-      let result;
+    try {
+      let response;
       if (pendingSearchType === "enrollment") {
-        result = voterDatabase.find(
-          voter => voter.enrollmentNumber.toLowerCase() === enrollmentNumber.toLowerCase().trim()
-        );
+        response = await searchByEnrollment({
+          enrollmentNumber: enrollmentNumber.trim(),
+          phoneNumber: tempPhone.trim() || undefined
+        });
       } else {
-        result = voterDatabase.find(
-          voter =>
-            voter.name.toLowerCase().includes(name.toLowerCase().trim()) &&
-            voter.district === district
-        );
+        response = await searchByNameDistrict({
+          name: name.trim(),
+          district: district,
+          phoneNumber: tempPhone.trim() || undefined
+        });
       }
-      setSearchResult(result || "not-found");
+
+      if (response.found && response.data) {
+        setSearchResult({
+          name: response.data.name,
+          enrollmentNumber: response.data.enrollmentNumber,
+          copNumber: response.data.copNumber?.toString() || '',
+          address: response.data.address,
+          district: response.data.district
+        });
+      } else {
+        setSearchResult("not-found");
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResult("not-found");
+    } finally {
       setIsSearching(false);
       setPendingSearchType(null);
       setTempPhone("");
-    }, 500);
+    }
   };
 
-  const skipPhoneAndSearch = () => {
+  const skipPhoneAndSearch = async () => {
     setShowPhonePrompt(false);
     setTempPhone("");
     
     // Execute search without phone
     setIsSearching(true);
-    setTimeout(() => {
-      let result;
+    
+    try {
+      let response;
       if (pendingSearchType === "enrollment") {
-        result = voterDatabase.find(
-          voter => voter.enrollmentNumber.toLowerCase() === enrollmentNumber.toLowerCase().trim()
-        );
+        response = await searchByEnrollment({
+          enrollmentNumber: enrollmentNumber.trim()
+        });
       } else {
-        result = voterDatabase.find(
-          voter =>
-            voter.name.toLowerCase().includes(name.toLowerCase().trim()) &&
-            voter.district === district
-        );
+        response = await searchByNameDistrict({
+          name: name.trim(),
+          district: district
+        });
       }
-      setSearchResult(result || "not-found");
+
+      if (response.found && response.data) {
+        setSearchResult({
+          name: response.data.name,
+          enrollmentNumber: response.data.enrollmentNumber,
+          copNumber: response.data.copNumber?.toString() || '',
+          address: response.data.address,
+          district: response.data.district
+        });
+      } else {
+        setSearchResult("not-found");
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResult("not-found");
+    } finally {
       setIsSearching(false);
       setPendingSearchType(null);
-    }, 500);
+    }
   };
 
   const saveSearchData = (data: any) => {
