@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "load-data": "node src/loadData.js"
+    "load-data": "node src/loadData.js",
+    "import-db": "node src/importToPostgres.js",
+    "init-db": "node src/db.js"
   },
   "keywords": [
     "voter",
@@ -19,8 +21,9 @@
   "dependencies": {
     "cors": "^2.8.5",
     "csv-writer": "^1.6.0",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.6.1",
     "express": "^4.18.2",
+    "pg": "^8.16.3",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

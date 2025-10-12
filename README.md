@@ -63,9 +63,35 @@ See `backend/README.md` for complete API documentation.
 
 ## Development
 
-- Frontend runs on: http://localhost:5173
+- Frontend runs on: http://localhost:5173 (or 3000)
 - Backend runs on: http://localhost:3001
 - API health check: http://localhost:3001/api/health
+
+### Two Backend Modes:
+
+#### JSON Mode (Development - Current):
+```bash
+cd backend
+node src/server.js
+```
+- Uses in-memory JSON database
+- Good for: Testing, small datasets (< 30K records)
+- No PostgreSQL required
+
+#### PostgreSQL Mode (Production - For 350K+ records):
+```bash
+cd backend
+node src/serverPostgres.js
+```
+- Uses PostgreSQL database with indexes
+- Good for: Production, large datasets (350K+ records)
+- Requires PostgreSQL installation
+
+## Deployment
+
+See `DEPLOYMENT.md` for complete deployment guide to Render (FREE).
+
+**For 350K+ records from MP:** Use PostgreSQL mode + Render deployment.
 
 ## Features
 
