@@ -127,5 +127,29 @@ export async function checkHealth(): Promise<{
   }
 }
 
+// Get bilingual districts
+export async function getBilingualDistricts(): Promise<{
+  total: number;
+  districts: Array<{
+    english: string;
+    hindi: string;
+    display: string;
+    value: string;
+  }>;
+}> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/districts`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching bilingual districts:', error);
+    throw error;
+  }
+}
+
 export type { VoterResult, SearchResponse };
 

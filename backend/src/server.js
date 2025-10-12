@@ -4,6 +4,19 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import loadVoterData from './loadData.js';
+import { 
+  saveSearchLogToCSV, 
+  savePhoneCaptureToCSV, 
+  loadSearchLogsFromCSV, 
+  loadPhoneCapturesFromCSV,
+  getCSVPaths 
+} from './csvManager.js';
+import { 
+  normalizeDistrict, 
+  normalizeName, 
+  containsHindi,
+  getBilingualDistricts
+} from './bilingualHelper.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +28,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// In-memory database (will be loaded from JSON)
+// In-memory database (will be loaded from JSON and CSV)
 let votersDB = [];
 let searchLogs = [];
 let phoneCaptures = [];
@@ -35,6 +48,12 @@ function initializeDatabase() {
       votersDB = JSON.parse(data);
       console.log(`Loaded ${votersDB.length} voter records from database`);
     }
+
+    // Load existing CSV logs
+    console.log('Loading existing CSV logs...');
+    searchLogs = loadSearchLogsFromCSV();
+    phoneCaptures = loadPhoneCapturesFromCSV();
+    console.log(`Loaded ${searchLogs.length} search logs and ${phoneCaptures.length} phone captures from CSV`);
   } catch (error) {
     console.error('Error initializing database:', error);
     votersDB = [];
@@ -61,8 +80,22 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Get bilingual districts list
+app.get('/api/districts', (req, res) => {
+  try {
+    const districts = getBilingualDistricts();
+    res.json({
+      total: districts.length,
+      districts: districts
+    });
+  } catch (error) {
+    console.error('Error getting districts:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Search by enrollment number
-app.post('/api/search/enrollment', (req, res) => {
+app.post('/api/search/enrollment', async (req, res) => {
   try {
     const { enrollmentNumber, phoneNumber } = req.body;
     
@@ -72,19 +105,29 @@ app.post('/api/search/enrollment', (req, res) => {
       });
     }
 
-    // Log search
-    searchLogs.push({
-      type: 'enrollment',
-      query: enrollmentNumber,
-      phoneNumber: phoneNumber || null,
-      timestamp: new Date().toISOString()
-    });
-
     // Search in database
     const normalizedSearch = normalizeString(enrollmentNumber);
     const result = votersDB.find(voter => 
       normalizeString(voter.enrollmentNo) === normalizedSearch ||
       normalizeString(voter.enrollmentNo).includes(normalizedSearch)
+    );
+
+    // Create log entry
+    const logEntry = {
+      type: 'enrollment',
+      query: enrollmentNumber,
+      enrollmentNumber: enrollmentNumber,
+      phoneNumber: phoneNumber || null,
+      timestamp: new Date().toISOString(),
+      resultFound: !!result
+    };
+
+    // Save to memory
+    searchLogs.push(logEntry);
+
+    // Save to CSV asynchronously (don't wait for it)
+    saveSearchLogToCSV(logEntry).catch(err => 
+      console.error('Failed to save to CSV:', err)
     );
 
     if (result) {
@@ -113,7 +156,7 @@ app.post('/api/search/enrollment', (req, res) => {
 });
 
 // Search by name and district
-app.post('/api/search/name-district', (req, res) => {
+app.post('/api/search/name-district', async (req, res) => {
   try {
     const { name, district, phoneNumber } = req.body;
     
@@ -123,21 +166,41 @@ app.post('/api/search/name-district', (req, res) => {
       });
     }
 
-    // Log search
-    searchLogs.push({
-      type: 'name-district',
-      query: { name, district },
-      phoneNumber: phoneNumber || null,
-      timestamp: new Date().toISOString()
+    // Normalize inputs to handle both English and Hindi
+    const normalizedNameInput = normalizeName(name).toLowerCase();
+    const normalizedDistrictInput = normalizeDistrict(district);
+    
+    console.log(`Search: Name="${name}" (normalized: "${normalizedNameInput}"), District="${district}" (normalized: "${normalizedDistrictInput}")`);
+    
+    // Search in database with bilingual support
+    const results = votersDB.filter(voter => {
+      const voterName = normalizeName(voter.name).toLowerCase();
+      const voterDistrict = normalizeString(voter.district).toUpperCase();
+      
+      const nameMatches = voterName.includes(normalizedNameInput) || 
+                         normalizeString(voter.name).includes(normalizeString(name));
+      const districtMatches = voterDistrict === normalizedDistrictInput ||
+                             voterDistrict === normalizeString(district).toUpperCase();
+      
+      return nameMatches && districtMatches;
     });
 
-    // Search in database
-    const normalizedName = normalizeString(name);
-    const normalizedDistrict = normalizeString(district);
-    
-    const results = votersDB.filter(voter => 
-      normalizeString(voter.name).includes(normalizedName) &&
-      normalizeString(voter.district) === normalizedDistrict
+    // Create log entry
+    const logEntry = {
+      type: 'name-district',
+      query: { name, district },
+      enrollmentNumber: results.length > 0 ? results[0].enrollmentNo : '',
+      phoneNumber: phoneNumber || null,
+      timestamp: new Date().toISOString(),
+      resultFound: results.length > 0
+    };
+
+    // Save to memory
+    searchLogs.push(logEntry);
+
+    // Save to CSV asynchronously
+    saveSearchLogToCSV(logEntry).catch(err => 
+      console.error('Failed to save to CSV:', err)
     );
 
     if (results.length > 0) {
@@ -169,7 +232,7 @@ app.post('/api/search/name-district', (req, res) => {
 });
 
 // Save phone number (for modal capture)
-app.post('/api/phone-capture', (req, res) => {
+app.post('/api/phone-capture', async (req, res) => {
   try {
     const { phoneNumber, source } = req.body;
     
@@ -179,13 +242,20 @@ app.post('/api/phone-capture', (req, res) => {
       });
     }
 
-    phoneCaptures.push({
+    const captureEntry = {
       phoneNumber,
       source: source || 'modal',
       timestamp: new Date().toISOString()
-    });
+    };
 
-    // In production, save to database
+    // Save to memory
+    phoneCaptures.push(captureEntry);
+
+    // Save to CSV asynchronously
+    savePhoneCaptureToCSV(captureEntry).catch(err => 
+      console.error('Failed to save phone capture to CSV:', err)
+    );
+
     console.log('Phone captured:', phoneNumber);
 
     res.json({
@@ -242,6 +312,52 @@ app.get('/api/admin/phone-captures', (req, res) => {
   }
 });
 
+// Download search logs CSV
+app.get('/api/admin/download/search-logs', (req, res) => {
+  try {
+    const csvPaths = getCSVPaths();
+    
+    if (!fs.existsSync(csvPaths.searchLogs)) {
+      return res.status(404).json({ error: 'Search logs CSV file not found' });
+    }
+
+    res.download(csvPaths.searchLogs, 'search-logs.csv', (err) => {
+      if (err) {
+        console.error('Error downloading search logs CSV:', err);
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Error downloading file' });
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error in download search logs:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Download phone captures CSV
+app.get('/api/admin/download/phone-captures', (req, res) => {
+  try {
+    const csvPaths = getCSVPaths();
+    
+    if (!fs.existsSync(csvPaths.phoneCaptures)) {
+      return res.status(404).json({ error: 'Phone captures CSV file not found' });
+    }
+
+    res.download(csvPaths.phoneCaptures, 'phone-captures.csv', (err) => {
+      if (err) {
+        console.error('Error downloading phone captures CSV:', err);
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Error downloading file' });
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error in download phone captures:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
@@ -255,13 +371,17 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`\n🚀 Voter Registration API Server running on port ${PORT}`);
   console.log(`📊 Total voters in database: ${votersDB.length}`);
+  console.log(`📝 Search logs: ${searchLogs.length} | Phone captures: ${phoneCaptures.length}`);
   console.log(`\n📍 API Endpoints:`);
   console.log(`   - GET  /api/health`);
   console.log(`   - POST /api/search/enrollment`);
   console.log(`   - POST /api/search/name-district`);
   console.log(`   - POST /api/phone-capture`);
   console.log(`   - GET  /api/stats`);
-  console.log(`\n✅ Backend is ready!\n`);
+  console.log(`\n💾 CSV Export Endpoints:`);
+  console.log(`   - GET  /api/admin/download/search-logs`);
+  console.log(`   - GET  /api/admin/download/phone-captures`);
+  console.log(`\n✅ Backend is ready! CSV auto-save enabled.\n`);
 });
 
 export default app;

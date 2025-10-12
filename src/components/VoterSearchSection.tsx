@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { CheckCircle2, XCircle, Search, MessageSquare, Phone } from "lucide-react";
 import { upDistricts } from "../utils/translations";
-import { searchByEnrollment, searchByNameDistrict } from "../utils/api";
+import { searchByEnrollment, searchByNameDistrict, getBilingualDistricts } from "../utils/api";
 import type { VoterResult as ApiVoterResult } from "../utils/api";
 
 interface VoterResult {
@@ -68,6 +68,29 @@ export function VoterSearchSection({
   const [showPhonePrompt, setShowPhonePrompt] = useState(false);
   const [tempPhone, setTempPhone] = useState("");
   const [pendingSearchType, setPendingSearchType] = useState<"enrollment" | "name-district" | null>(null);
+  const [bilingualDistricts, setBilingualDistricts] = useState<Array<{
+    english: string;
+    hindi: string;
+    display: string;
+    value: string;
+  }>>([]);
+  const [districtsLoaded, setDistrictsLoaded] = useState(false);
+
+  // Fetch bilingual districts on mount
+  useEffect(() => {
+    async function loadDistricts() {
+      try {
+        const response = await getBilingualDistricts();
+        setBilingualDistricts(response.districts);
+        setDistrictsLoaded(true);
+      } catch (error) {
+        console.error('Failed to load bilingual districts, using fallback:', error);
+        // Fallback to default districts
+        setDistrictsLoaded(true);
+      }
+    }
+    loadDistricts();
+  }, []);
 
   const initiateSearch = (type: "enrollment" | "name-district") => {
     // Validate before showing phone prompt
@@ -274,11 +297,19 @@ export function VoterSearchSection({
                         <SelectValue placeholder={st.districtPlaceholder} />
                       </SelectTrigger>
                       <SelectContent className="max-h-[300px]">
-                        {upDistricts.map((dist) => (
-                          <SelectItem key={dist} value={dist} className="text-[18px] py-3">
-                            {dist}
-                          </SelectItem>
-                        ))}
+                        {districtsLoaded && bilingualDistricts.length > 0 ? (
+                          bilingualDistricts.map((dist) => (
+                            <SelectItem key={dist.value} value={dist.value} className="text-[18px] py-3">
+                              {dist.display}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          upDistricts.map((dist) => (
+                            <SelectItem key={dist} value={dist} className="text-[18px] py-3">
+                              {dist}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   </div>

@@ -44,7 +44,7 @@ export const translations = {
       tabEnrollment: "Search by Enrollment Number",
       tabNameDistrict: "Search by Name and District",
       enrollmentLabel: "Enter your Enrollment Number",
-      enrollmentPlaceholder: "e.g., UP/12345/2010",
+      enrollmentPlaceholder: "e.g., UP10579/13",
       nameLabel: "Full Name",
       namePlaceholder: "Enter your full name",
       districtLabel: "Select District",
@@ -118,7 +118,7 @@ export const translations = {
       tabEnrollment: "एनरोलमेंट नंबर से खोजें",
       tabNameDistrict: "नाम और जिले से खोजें",
       enrollmentLabel: "अपना एनरोलमेंट नंबर दर्ज करें",
-      enrollmentPlaceholder: "उदा., UP/12345/2010",
+      enrollmentPlaceholder: "उदा., UP10579/13",
       nameLabel: "पूरा नाम",
       namePlaceholder: "अपना पूरा नाम दर्ज करें",
       districtLabel: "जिला चुनें",
@@ -158,23 +158,23 @@ export const translations = {
   }
 };
 
-// UP Districts
+// UP Districts (English - fallback if API fails)
 export const upDistricts = [
-  "आगरा", "अलीगढ़", "अम्बेडकर नगर", "अमेठी", "अमरोहा", "औरैया", "आजमगढ़",
-  "बागपत", "बहराइच", "बलिया", "बलरामपुर", "बांदा", "बाराबंकी", "बरेली", "बस्ती", "भदोही", "बिजनौर", "बदायूं", "बुलंदशहर",
-  "चंदौली", "चित्रकूट",
-  "देवरिया",
-  "एटा", "इटावा",
-  "फैजाबाद", "फर्रुखाबाद", "फतेहपुर", "फिरोजाबाद",
-  "गौतम बुद्ध नगर", "गाजियाबाद", "गाजीपुर", "गोंडा", "गोरखपुर",
-  "हमीरपुर", "हापुड़", "हरदोई", "हाथरस",
-  "जालौन", "जौनपुर", "झांसी",
-  "कन्नौज", "कानपुर देहात", "कानपुर नगर", "कासगंज", "कौशाम्बी", "कुशीनगर",
-  "लखीमपुर खीरी", "ललितपुर", "लखनऊ",
-  "महाराजगंज", "महोबा", "मैनपुरी", "मथुरा", "मऊ", "मेरठ", "मिर्जापुर", "मुरादाबाद", "मुजफ्फरनगर",
-  "पीलीभीत", "प्रतापगढ़", "प्रयागराज",
-  "रायबरेली", "रामपुर",
-  "सहारनपुर", "संभल", "संत कबीर नगर", "शाहजहांपुर", "शामली", "श्रावस्ती", "सिद्धार्थनगर", "सीतापुर", "सोनभद्र", "सुल्तानपुर",
-  "उन्नाव",
-  "वाराणसी"
+  "AGRA", "ALIGARH", "ALLAHABAD", "AMBEDKAR NAGAR", "AMETHI", "AMROHA", "AURAIYA", "AZAMGARH",
+  "BAGHPAT", "BAHRAICH", "BALLIA", "BALRAMPUR", "BANDA", "BARABANKI", "BAREILLY", "BASTI", "BHADOHI", "BIJNOR", "BUDAUN", "BULANDSHAHR",
+  "CHANDAULI", "CHITRAKOOT",
+  "DEORIA",
+  "ETAH", "ETAWAH",
+  "FAIZABAD", "FARRUKHABAD", "FATEHPUR", "FIROZABAD",
+  "GAUTAM BUDDHA NAGAR", "GHAZIABAD", "GHAZIPUR", "GONDA", "GORAKHPUR",
+  "HAMIRPUR", "HAPUR", "HARDOI", "HATHRAS",
+  "JALAUN", "JAUNPUR", "JHANSI",
+  "KANNAUJ", "KANPUR DEHAT", "KANPUR NAGAR", "KASGANJ", "KAUSHAMBI", "KUSHINAGAR",
+  "LAKHIMPUR KHERI", "LALITPUR", "LUCKNOW",
+  "MAHARAJGANJ", "MAHOBA", "MAINPURI", "MATHURA", "MAU", "MEERUT", "MIRZAPUR", "MORADABAD", "MUZAFFARNAGAR",
+  "PILIBHIT", "PRATAPGARH", "PRAYAGRAJ",
+  "RAE BARELI", "RAMPUR",
+  "SAHARANPUR", "SAMBHAL", "SANT KABIR NAGAR", "SHAHJAHANPUR", "SHAMLI", "SHRAVASTI", "SIDDHARTHNAGAR", "SITAPUR", "SONBHADRA", "SULTANPUR",
+  "UNNAO",
+  "VARANASI"
 ];
