@@ -126,8 +126,34 @@ export function getBilingualDistricts() {
   }));
 }
 
-// Common Hindi name patterns and transliterations
-const hindiToEnglishPatterns = {
+// Comprehensive Devanagari (Hindi) to English transliteration map
+const devanagariToEnglish = {
+  // Vowels
+  'अ': 'A', 'आ': 'A', 'इ': 'I', 'ई': 'I', 'उ': 'U', 'ऊ': 'U',
+  'ए': 'E', 'ऐ': 'AI', 'ओ': 'O', 'औ': 'AU',
+  'ऋ': 'RI', 'ॠ': 'RI',
+  // Consonants
+  'क': 'K', 'ख': 'KH', 'ग': 'G', 'घ': 'GH', 'ङ': 'NG',
+  'च': 'CH', 'छ': 'CHH', 'ज': 'J', 'झ': 'JH', 'ञ': 'NY',
+  'ट': 'T', 'ठ': 'TH', 'ड': 'D', 'ढ': 'DH', 'ण': 'N',
+  'त': 'T', 'थ': 'TH', 'द': 'D', 'ध': 'DH', 'न': 'N',
+  'प': 'P', 'फ': 'PH', 'ब': 'B', 'भ': 'BH', 'म': 'M',
+  'य': 'Y', 'र': 'R', 'ल': 'L', 'व': 'V', 'W': 'V',
+  'श': 'SH', 'ष': 'SH', 'स': 'S', 'ह': 'H',
+  'क़': 'Q', 'ख़': 'KH', 'ग़': 'GH', 'ज़': 'Z', 'झ़': 'ZH', 'फ़': 'F',
+  // Matras (vowel signs)
+  'ा': 'A', 'ि': 'I', 'ी': 'I', 'ु': 'U', 'ू': 'U',
+  'े': 'E', 'ै': 'AI', 'ो': 'O', 'ौ': 'AU',
+  'ृ': 'RI', 'ॄ': 'RI',
+  // Special characters
+  'ं': 'N', 'ः': 'H', '्': '', 'ँ': 'N',
+  // Numbers (Devanagari)
+  '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
+  '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
+};
+
+// Common Hindi name patterns for better matching
+const commonHindiWords = {
   'कुमार': 'KUMAR',
   'सिंह': 'SINGH',
   'शर्मा': 'SHARMA',
@@ -136,17 +162,32 @@ const hindiToEnglishPatterns = {
   'यादव': 'YADAV',
   'पाण्डेय': 'PANDEY',
   'पांडे': 'PANDEY',
+  'पांडेय': 'PANDEY',
   'त्रिपाठी': 'TRIPATHI',
   'द्विवेदी': 'DWIVEDI',
   'मिश्रा': 'MISHRA',
+  'मिश्र': 'MISHRA',
   'राय': 'RAI',
   'चौधरी': 'CHAUDHARY',
+  'चौधरी': 'CHAUDHRY',
   'श्रीवास्तव': 'SRIVASTAVA',
+  'श्रीवास्तव': 'SHRIVASTAVA',
   'प्रकाश': 'PRAKASH',
   'चंद्र': 'CHANDRA',
+  'चन्द्र': 'CHANDRA',
   'राज': 'RAJ',
   'देव': 'DEV',
-  'दास': 'DAS'
+  'दास': 'DAS',
+  'दुबे': 'DUBEY',
+  'दूबे': 'DUBEY',
+  'आशीष': 'ASHISH',
+  'आशीश': 'ASHISH',
+  'राजेश': 'RAJESH',
+  'विजय': 'VIJAY',
+  'मनोज': 'MANOJ',
+  'संजय': 'SANJAY',
+  'अजय': 'AJAY',
+  'विनय': 'VINAY'
 };
 
 // Check if text contains Hindi characters
@@ -156,17 +197,35 @@ export function containsHindi(text) {
   return /[\u0900-\u097F]/.test(text);
 }
 
+// Transliterate Hindi text to English
+export function transliterateHindiToEnglish(text) {
+  if (!text) return '';
+  
+  let result = text;
+  
+  // First, check for common whole words (better accuracy)
+  Object.entries(commonHindiWords).forEach(([hindi, english]) => {
+    const regex = new RegExp(hindi, 'g');
+    result = result.replace(regex, english);
+  });
+  
+  // Then transliterate remaining characters
+  result = result.split('').map(char => {
+    return devanagariToEnglish[char] || char;
+  }).join('');
+  
+  return result.toUpperCase().trim();
+}
+
 // Normalize name for searching (handles both scripts)
 export function normalizeName(name) {
   if (!name) return '';
   
   let normalized = name.trim().toUpperCase();
   
-  // If contains Hindi, try to transliterate common patterns
+  // If contains Hindi, transliterate to English
   if (containsHindi(name)) {
-    Object.entries(hindiToEnglishPatterns).forEach(([hindi, english]) => {
-      normalized = normalized.replace(new RegExp(hindi, 'g'), english);
-    });
+    normalized = transliterateHindiToEnglish(name);
   }
   
   return normalized;
@@ -206,6 +265,7 @@ export default {
   getBilingualDistricts,
   containsHindi,
   normalizeName,
+  transliterateHindiToEnglish,
   bilingualSearch
 };
 

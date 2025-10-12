@@ -172,17 +172,36 @@ app.post('/api/search/name-district', async (req, res) => {
     
     console.log(`Search: Name="${name}" (normalized: "${normalizedNameInput}"), District="${district}" (normalized: "${normalizedDistrictInput}")`);
     
-    // Search in database with bilingual support
+    // Split name into words for flexible matching
+    const searchWords = normalizedNameInput.split(/\s+/).filter(w => w.length > 2);
+    
+    // Search in database with bilingual support and fuzzy matching
     const results = votersDB.filter(voter => {
-      const voterName = normalizeName(voter.name).toLowerCase();
+      const voterName = voter.name.toLowerCase();
       const voterDistrict = normalizeString(voter.district).toUpperCase();
       
-      const nameMatches = voterName.includes(normalizedNameInput) || 
-                         normalizeString(voter.name).includes(normalizeString(name));
+      // Check district match first
       const districtMatches = voterDistrict === normalizedDistrictInput ||
                              voterDistrict === normalizeString(district).toUpperCase();
       
-      return nameMatches && districtMatches;
+      if (!districtMatches) return false;
+      
+      // Flexible name matching - each search word should match somewhere in voter name
+      const nameMatches = searchWords.length === 0 || searchWords.every(word => {
+        // Direct match
+        if (voterName.includes(word)) return true;
+        
+        // Fuzzy match for similar spellings (e.g., ASHISH vs AASHEESH)
+        // Check if significant part of word exists in voter name
+        if (word.length >= 4) {
+          const wordCore = word.substring(0, Math.min(4, word.length));
+          if (voterName.includes(wordCore)) return true;
+        }
+        
+        return false;
+      });
+      
+      return nameMatches;
     });
 
     // Create log entry
