@@ -245,11 +245,11 @@ export function VoterSearchSection({
   };
 
   const joinWhatsAppGroup = () => {
-    window.open("https://wa.me/919415300191?text=नमस्ते, मैं श्री अरुण त्रिपाठी जी के अभियान से जुड़ना चाहता/चाहती हूँ।", "_blank");
+    window.open("https://wa.me/919415451856?text=नमस्ते, मैं श्री अरुण त्रिपाठी जी के अभियान से जुड़ना चाहता/चाहती हूँ।", "_blank");
   };
 
   const callContact = () => {
-    window.location.href = "tel:+919415300191";
+    window.location.href = "tel:+919415451856";
   };
 
   const handleReset = () => {
@@ -403,7 +403,7 @@ export function VoterSearchSection({
                       </p>
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                         <a 
-                          href="tel:+919415300191"
+                          href="tel:+919415451856"
                           className="text-[28px] sm:text-[32px] text-[#0A2647] hover:text-[#d32f2f] transition-colors flex items-center gap-3"
                         >
                           <Phone className="w-8 h-8" />
