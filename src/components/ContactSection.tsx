@@ -52,11 +52,11 @@ export function ContactSection({ translations: t }: ContactSectionProps) {
   };
 
   const handleWhatsApp = () => {
-    window.open("https://wa.me/919999999999?text=Hello, I want to support Adv. Arun Kumar Tripathi", "_blank");
+    window.open("https://chat.whatsapp.com/EMnAZAnTaf1HjgAzFZJNsE?mode=wwt", "_blank");
   };
 
   const handleShare = (platform: string) => {
-    const shareText = "Vote for Adv. Arun Kumar Tripathi - Bar Council of UP Elections 2025";
+    const shareText = "Vote for Adv. Arun Kumar Tripathi - Bar Council of UP Elections 2026";
     const shareUrl = window.location.href;
 
     if (platform === "whatsapp") {

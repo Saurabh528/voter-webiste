@@ -79,7 +79,7 @@ export const translations = {
     },
     // Footer
     footer: {
-      rights: "© 2025 Shri Arun Kumar Tripathi Campaign. All rights reserved."
+      rights: "© 2026 Shri Arun Kumar Tripathi Campaign. All rights reserved."
     }
   },
   hi: {
@@ -153,7 +153,7 @@ export const translations = {
     },
     // Footer
     footer: {
-      rights: "© 2025 श्री अरुण कुमार त्रिपाठी अभियान। सर्वाधिकार सुरक्षित।"
+      rights: "© 2026 श्री अरुण कुमार त्रिपाठी अभियान। सर्वाधिकार सुरक्षित।"
     }
   }
 };

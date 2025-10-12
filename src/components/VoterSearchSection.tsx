@@ -245,7 +245,7 @@ export function VoterSearchSection({
   };
 
   const joinWhatsAppGroup = () => {
-    window.open("https://wa.me/919415451856?text=नमस्ते, मैं श्री अरुण त्रिपाठी जी के अभियान से जुड़ना चाहता/चाहती हूँ।", "_blank");
+    window.open("https://chat.whatsapp.com/EMnAZAnTaf1HjgAzFZJNsE?mode=wwt", "_blank");
   };
 
   const callContact = () => {

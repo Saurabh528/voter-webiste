@@ -32,7 +32,7 @@ export default function App() {
   };
 
   const handleWhatsApp = () => {
-    window.open("https://wa.me/919415451856?text=नमस्ते, मैं श्री अरुण त्रिपाठी जी के अभियान से जुड़ना चाहता/चाहती हूँ।", "_blank");
+    window.open("https://chat.whatsapp.com/EMnAZAnTaf1HjgAzFZJNsE?mode=wwt", "_blank");
   };
 
   const handleFacebookProfile = () => {
@@ -296,8 +296,8 @@ export default function App() {
           <h3 className="text-[20px]">{t.hero.candidateName}</h3>
           <p className="text-[16px] text-white/80">
             {language === "hi" 
-              ? "बार कौंसिल ऑफ उत्तर प्रदेश चुनाव 2025"
-              : "Bar Council of Uttar Pradesh Elections 2025"
+              ? "बार कौंसिल ऑफ उत्तर प्रदेश चुनाव 2026"
+              : "Bar Council of Uttar Pradesh Elections 2026"
             }
           </p>
           <div className="pt-4 border-t border-white/20">
