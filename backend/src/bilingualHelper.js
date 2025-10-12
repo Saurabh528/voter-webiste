@@ -1,8 +1,7 @@
 // Bilingual helper for English/Hindi search support
 
-// District mappings - English to Hindi
+// District mappings - English to Hindi (75 Official UP Districts)
 export const districtMappings = {
-  // Major UP Districts with Hindi translations
   'AGRA': 'आगरा',
   'ALIGARH': 'अलीगढ़',
   'ALLAHABAD': 'इलाहाबाद',
@@ -11,6 +10,7 @@ export const districtMappings = {
   'AMETHI': 'अमेठी',
   'AMROHA': 'अमरोहा',
   'AURAIYA': 'औरैया',
+  'AYODHYA': 'अयोध्या',
   'AZAMGARH': 'आज़मगढ़',
   'BAGHPAT': 'बागपत',
   'BAHRAICH': 'बहराइच',
@@ -20,6 +20,7 @@ export const districtMappings = {
   'BARABANKI': 'बाराबंकी',
   'BAREILLY': 'बरेली',
   'BASTI': 'बस्ती',
+  'BHADOHI': 'भदोही',
   'BIJNOR': 'बिजनौर',
   'BUDAUN': 'बदायूं',
   'BULANDSHAHR': 'बुलंदशहर',
@@ -28,8 +29,6 @@ export const districtMappings = {
   'DEORIA': 'देवरिया',
   'ETAH': 'एटा',
   'ETAWAH': 'इटावा',
-  'FAIZABAD': 'फैजाबाद',
-  'AYODHYA': 'अयोध्या',
   'FARRUKHABAD': 'फर्रुखाबाद',
   'FATEHPUR': 'फतेहपुर',
   'FIROZABAD': 'फिरोजाबाद',
@@ -47,14 +46,13 @@ export const districtMappings = {
   'JAUNPUR': 'जौनपुर',
   'JHANSI': 'झांसी',
   'KANNAUJ': 'कन्नौज',
-  'KANPUR': 'कानपुर',
-  'KANPUR NAGAR': 'कानपुर नगर',
   'KANPUR DEHAT': 'कानपुर देहात',
+  'KANPUR NAGAR': 'कानपुर नगर',
+  'KANPUR': 'कानपुर',
   'KASGANJ': 'कासगंज',
   'KAUSHAMBI': 'कौशाम्बी',
-  'KHERI': 'खेरी',
-  'LAKHIMPUR KHERI': 'लखीमपुर खीरी',
   'KUSHINAGAR': 'कुशीनगर',
+  'LAKHIMPUR KHERI': 'लखीमपुर खीरी',
   'LALITPUR': 'ललितपुर',
   'LUCKNOW': 'लखनऊ',
   'MAHARAJGANJ': 'महाराजगंज',
@@ -68,13 +66,11 @@ export const districtMappings = {
   'MUZAFFARNAGAR': 'मुज़फ़्फ़रनगर',
   'PILIBHIT': 'पीलीभीत',
   'PRATAPGARH': 'प्रतापगढ़',
-  'RAE BARELI': 'रायबरेली',
+  'RAEBARELI': 'रायबरेली',
   'RAMPUR': 'रामपुर',
   'SAHARANPUR': 'सहारनपुर',
   'SAMBHAL': 'संभल',
   'SANT KABIR NAGAR': 'संत कबीर नगर',
-  'SANT RAVIDAS NAGAR': 'संत रविदास नगर',
-  'BHADOHI': 'भदोही',
   'SHAHJAHANPUR': 'शाहजहांपुर',
   'SHAMLI': 'शामली',
   'SHRAVASTI': 'श्रावस्ती',
@@ -83,9 +79,7 @@ export const districtMappings = {
   'SONBHADRA': 'सोनभद्र',
   'SULTANPUR': 'सुल्तानपुर',
   'UNNAO': 'उन्नाव',
-  'VARANASI': 'वाराणसी',
-  'BANARAS': 'बनारस',
-  'KASHI': 'काशी'
+  'VARANASI': 'वाराणसी'
 };
 
 // Create reverse mapping (Hindi to English)
