@@ -15,7 +15,8 @@ import {
   normalizeDistrict, 
   normalizeName, 
   containsHindi,
-  getBilingualDistricts
+  getBilingualDistricts,
+  getAllSpellingVariations
 } from './bilingualHelper.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -167,17 +168,23 @@ app.post('/api/search/name-district', async (req, res) => {
     }
 
     // Normalize inputs to handle both English and Hindi
-    const normalizedNameInput = normalizeName(name).toLowerCase();
     const normalizedDistrictInput = normalizeDistrict(district);
     
-    console.log(`Search: Name="${name}" (normalized: "${normalizedNameInput}"), District="${district}" (normalized: "${normalizedDistrictInput}")`);
+    // If Hindi input, get all spelling variations
+    let searchVariations = [];
+    if (containsHindi(name)) {
+      searchVariations = getAllSpellingVariations(name);
+      console.log(`Hindi Search: "${name}" → Variations:`, searchVariations);
+    } else {
+      searchVariations = [name.toUpperCase().trim()];
+      console.log(`English Search: "${name}"`);
+    }
     
-    // Split name into words for flexible matching
-    const searchWords = normalizedNameInput.split(/\s+/).filter(w => w.length > 2);
+    console.log(`District: "${district}" (normalized: "${normalizedDistrictInput}")`);
     
-    // Search in database with bilingual support and fuzzy matching
+    // Search in database with all spelling variations
     const results = votersDB.filter(voter => {
-      const voterName = voter.name.toLowerCase();
+      const voterName = voter.name.toUpperCase();
       const voterDistrict = normalizeString(voter.district).toUpperCase();
       
       // Check district match first
@@ -186,19 +193,23 @@ app.post('/api/search/name-district', async (req, res) => {
       
       if (!districtMatches) return false;
       
-      // Flexible name matching - each search word should match somewhere in voter name
-      const nameMatches = searchWords.length === 0 || searchWords.every(word => {
-        // Direct match
-        if (voterName.includes(word)) return true;
+      // Try to match with any spelling variation
+      const nameMatches = searchVariations.some(variation => {
+        const searchWords = variation.split(/\s+/).filter(w => w.length > 2);
         
-        // Fuzzy match for similar spellings (e.g., ASHISH vs AASHEESH)
-        // Check if significant part of word exists in voter name
-        if (word.length >= 4) {
-          const wordCore = word.substring(0, Math.min(4, word.length));
-          if (voterName.includes(wordCore)) return true;
-        }
-        
-        return false;
+        // All words must match
+        return searchWords.every(word => {
+          // Direct match
+          if (voterName.includes(word)) return true;
+          
+          // Fuzzy match for similar spellings
+          if (word.length >= 4) {
+            const wordCore = word.substring(0, Math.min(4, word.length));
+            if (voterName.includes(wordCore)) return true;
+          }
+          
+          return false;
+        });
       });
       
       return nameMatches;
@@ -223,19 +234,21 @@ app.post('/api/search/name-district', async (req, res) => {
     );
 
     if (results.length > 0) {
-      // Return first match (or you could return all matches)
-      const result = results[0];
+      // Return ALL matches
+      const allMatches = results.map(result => ({
+        name: result.name,
+        enrollmentNumber: result.enrollmentNo,
+        copNumber: result.copNo,
+        address: result.address,
+        district: result.district,
+        fatherName: result.fatherName,
+        mobile: result.mobile
+      }));
+      
       res.json({
         found: true,
-        data: {
-          name: result.name,
-          enrollmentNumber: result.enrollmentNo,
-          copNumber: result.copNo,
-          address: result.address,
-          district: result.district,
-          fatherName: result.fatherName,
-          mobile: result.mobile
-        },
+        data: allMatches[0], // First result for backward compatibility
+        allResults: allMatches, // All matching results
         totalMatches: results.length
       });
     } else {

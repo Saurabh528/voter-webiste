@@ -152,8 +152,9 @@ const devanagariToEnglish = {
   '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
 };
 
-// Common Hindi name patterns for better matching
+// Common Hindi name patterns for better matching (most common spellings)
 const commonHindiWords = {
+  // Surnames
   'कुमार': 'KUMAR',
   'सिंह': 'SINGH',
   'शर्मा': 'SHARMA',
@@ -170,8 +171,7 @@ const commonHindiWords = {
   'राय': 'RAI',
   'चौधरी': 'CHAUDHARY',
   'चौधरी': 'CHAUDHRY',
-  'श्रीवास्तव': 'SRIVASTAVA',
-  'श्रीवास्तव': 'SHRIVASTAVA',
+  'श्रीवास्तव': 'SRIVASTAVA|SHRIVASTAVA|SRIVAST',
   'प्रकाश': 'PRAKASH',
   'चंद्र': 'CHANDRA',
   'चन्द्र': 'CHANDRA',
@@ -180,14 +180,23 @@ const commonHindiWords = {
   'दास': 'DAS',
   'दुबे': 'DUBEY',
   'दूबे': 'DUBEY',
-  'आशीष': 'ASHISH',
-  'आशीश': 'ASHISH',
-  'राजेश': 'RAJESH',
-  'विजय': 'VIJAY',
-  'मनोज': 'MANOJ',
-  'संजय': 'SANJAY',
-  'अजय': 'AJAY',
-  'विनय': 'VINAY'
+  'तिवारी': 'TIWARI',
+  'पटेल': 'PATEL',
+  'ठाकुर': 'THAKUR',
+  'शुक्ला': 'SHUKLA',
+  // First Names (multiple spelling variations)
+  'आशीष': 'AASHEESH|ASHISH|ASHI',
+  'आशीश': 'AASHEESH|ASHISH|ASHI',
+  'राजेश': 'RAJESH|RAJEESH',
+  'विजय': 'VIJAY|VIJEY',
+  'मनोज': 'MANOJ|MANUJ',
+  'संजय': 'SANJAY|SANJEY',
+  'अजय': 'AJAY|AJEY',
+  'विनय': 'VINAY|VINEY',
+  'शंकर': 'SHANKAR|SHANKER',
+  'ओम': 'OM',
+  'काम': 'KAMLESH|KAMAL',
+  'कमलेश': 'KAMLESH'
 };
 
 // Check if text contains Hindi characters
@@ -197,24 +206,89 @@ export function containsHindi(text) {
   return /[\u0900-\u097F]/.test(text);
 }
 
-// Transliterate Hindi text to English
+// Transliterate Hindi text to English (returns all spelling variations)
 export function transliterateHindiToEnglish(text) {
   if (!text) return '';
   
   let result = text;
+  let hasVariations = false;
   
   // First, check for common whole words (better accuracy)
+  // Replace with all variations using special marker
   Object.entries(commonHindiWords).forEach(([hindi, english]) => {
-    const regex = new RegExp(hindi, 'g');
-    result = result.replace(regex, english);
+    if (result.includes(hindi)) {
+      const regex = new RegExp(hindi, 'g');
+      result = result.replace(regex, `{${english}}`);
+      if (english.includes('|')) {
+        hasVariations = true;
+      }
+    }
   });
   
   // Then transliterate remaining characters
   result = result.split('').map(char => {
+    if (char === '{' || char === '}') return char;
     return devanagariToEnglish[char] || char;
   }).join('');
   
-  return result.toUpperCase().trim();
+  result = result.toUpperCase().trim();
+  
+  // If we have variations, return the first one (most common spelling)
+  // The search function will handle checking all variations
+  result = result.replace(/\{([^}]+)\}/g, (match, content) => {
+    return content.split('|')[0]; // Return first variation
+  });
+  
+  return result;
+}
+
+// Get all spelling variations for a transliterated name
+export function getAllSpellingVariations(text) {
+  if (!text) return [text];
+  
+  let result = text;
+  const variations = [[]];
+  
+  // Replace Hindi words with their variations
+  Object.entries(commonHindiWords).forEach(([hindi, english]) => {
+    if (result.includes(hindi)) {
+      const regex = new RegExp(hindi, 'g');
+      result = result.replace(regex, `{${english}}`);
+    }
+  });
+  
+  // Transliterate remaining characters
+  result = result.split('').map(char => {
+    if (char === '{' || char === '}') return char;
+    return devanagariToEnglish[char] || char;
+  }).join('');
+  
+  result = result.toUpperCase().trim();
+  
+  // Extract all variations
+  const parts = result.split(/(\{[^}]+\})/);
+  const allVariations = [];
+  
+  function generateCombinations(index, current) {
+    if (index >= parts.length) {
+      allVariations.push(current.trim());
+      return;
+    }
+    
+    const part = parts[index];
+    if (part.startsWith('{') && part.endsWith('}')) {
+      const options = part.slice(1, -1).split('|');
+      options.forEach(option => {
+        generateCombinations(index + 1, current + ' ' + option);
+      });
+    } else {
+      generateCombinations(index + 1, current + ' ' + part);
+    }
+  }
+  
+  generateCombinations(0, '');
+  
+  return allVariations.length > 0 ? allVariations : [result];
 }
 
 // Normalize name for searching (handles both scripts)
@@ -266,6 +340,7 @@ export default {
   containsHindi,
   normalizeName,
   transliterateHindiToEnglish,
+  getAllSpellingVariations,
   bilingualSearch
 };
 

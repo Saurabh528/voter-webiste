@@ -64,6 +64,7 @@ export function VoterSearchSection({
   const [district, setDistrict] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [searchResult, setSearchResult] = useState<VoterResult | null | "not-found">(null);
+  const [allResults, setAllResults] = useState<VoterResult[]>([]); // Store all matching results
   const [isSearching, setIsSearching] = useState(false);
   const [showPhonePrompt, setShowPhonePrompt] = useState(false);
   const [tempPhone, setTempPhone] = useState("");
@@ -129,6 +130,7 @@ export function VoterSearchSection({
       }
 
       if (response.found && response.data) {
+        // Store first result for backward compatibility
         setSearchResult({
           name: response.data.name,
           enrollmentNumber: response.data.enrollmentNumber,
@@ -136,12 +138,34 @@ export function VoterSearchSection({
           address: response.data.address,
           district: response.data.district
         });
+        
+        // Store all results if available
+        if ((response as any).allResults) {
+          const results = (response as any).allResults.map((r: any) => ({
+            name: r.name,
+            enrollmentNumber: r.enrollmentNumber,
+            copNumber: r.copNumber?.toString() || '',
+            address: r.address,
+            district: r.district
+          }));
+          setAllResults(results);
+        } else {
+          setAllResults([{
+            name: response.data.name,
+            enrollmentNumber: response.data.enrollmentNumber,
+            copNumber: response.data.copNumber?.toString() || '',
+            address: response.data.address,
+            district: response.data.district
+          }]);
+        }
       } else {
         setSearchResult("not-found");
+        setAllResults([]);
       }
     } catch (error) {
       console.error("Search error:", error);
       setSearchResult("not-found");
+      setAllResults([]);
     } finally {
       setIsSearching(false);
       setPendingSearchType(null);
@@ -177,12 +201,34 @@ export function VoterSearchSection({
           address: response.data.address,
           district: response.data.district
         });
+        
+        // Store all results if available
+        if ((response as any).allResults) {
+          const results = (response as any).allResults.map((r: any) => ({
+            name: r.name,
+            enrollmentNumber: r.enrollmentNumber,
+            copNumber: r.copNumber?.toString() || '',
+            address: r.address,
+            district: r.district
+          }));
+          setAllResults(results);
+        } else {
+          setAllResults([{
+            name: response.data.name,
+            enrollmentNumber: response.data.enrollmentNumber,
+            copNumber: response.data.copNumber?.toString() || '',
+            address: response.data.address,
+            district: response.data.district
+          }]);
+        }
       } else {
         setSearchResult("not-found");
+        setAllResults([]);
       }
     } catch (error) {
       console.error("Search error:", error);
       setSearchResult("not-found");
+      setAllResults([]);
     } finally {
       setIsSearching(false);
       setPendingSearchType(null);
@@ -211,6 +257,7 @@ export function VoterSearchSection({
     setName("");
     setDistrict("");
     setSearchResult(null);
+    setAllResults([]);
     setTempPhone("");
     setPhoneNumber("");
   };
@@ -376,35 +423,65 @@ export function VoterSearchSection({
                 </div>
               </Card>
             ) : (
-              <Card className="p-8 sm:p-12 bg-[#e8f5e9] border-4 border-[#388e3c]">
-                <div className="space-y-6">
+              <div className="space-y-6">
+                {/* Header */}
+                <Card className="p-6 sm:p-8 bg-[#e8f5e9] border-4 border-[#388e3c]">
                   <div className="text-center space-y-4">
-                    <CheckCircle2 className="w-24 h-24 text-[#388e3c] mx-auto" />
-                    <div className="bg-white p-6 sm:p-8 rounded-lg border-2 border-[#388e3c]">
+                    <CheckCircle2 className="w-20 h-20 text-[#388e3c] mx-auto" />
+                    <div className="bg-white p-4 sm:p-6 rounded-lg border-2 border-[#388e3c]">
                       <h3 className="text-[24px] sm:text-[28px] text-[#2e7d32] leading-relaxed">
                         ✔️ {rt.registered}
                       </h3>
+                      {allResults.length > 1 && (
+                        <p className="text-[18px] text-[#2e7d32] mt-2">
+                          {allResults.length} मैच मिले / {allResults.length} Matches Found
+                        </p>
+                      )}
                     </div>
                   </div>
+                </Card>
 
-                  <div className="space-y-4 bg-white p-6 sm:p-8 rounded-lg border-2 border-[#388e3c]">
-                    <div className="space-y-2">
-                      <p className="text-[18px] text-[#0A2647]/70">{rt.enrollmentNumber}:</p>
-                      <p className="text-[24px] text-[#0A2647]">{searchResult.enrollmentNumber}</p>
-                    </div>
+                {/* Display ALL Results */}
+                {allResults.map((result, index) => (
+                  <Card key={index} className="p-6 sm:p-8 bg-white border-2 border-[#388e3c] hover:shadow-lg transition-shadow">
+                    <div className="space-y-4">
+                      {/* Result Number Header */}
+                      <div className="flex items-center gap-3 pb-3 border-b-2 border-[#388e3c]/20">
+                        <div className="w-10 h-10 rounded-full bg-[#388e3c] flex items-center justify-center">
+                          <span className="text-white text-[20px]">✅</span>
+                        </div>
+                        <h4 className="text-[22px] text-[#388e3c] font-semibold">
+                          {allResults.length > 1 ? `Result ${index + 1} of ${allResults.length}` : 'Voter Details'}
+                        </h4>
+                      </div>
 
-                    <div className="space-y-2">
-                      <p className="text-[18px] text-[#0A2647]/70">{rt.copNumber}:</p>
-                      <p className="text-[24px] text-[#0A2647]">{searchResult.copNumber}</p>
-                    </div>
+                      {/* Name */}
+                      <div className="space-y-2">
+                        <p className="text-[16px] text-[#0A2647]/70 font-medium">Name:</p>
+                        <p className="text-[22px] text-[#0A2647] font-semibold">{result.name}</p>
+                      </div>
 
-                    <div className="space-y-2">
-                      <p className="text-[18px] text-[#0A2647]/70">{rt.address}:</p>
-                      <p className="text-[24px] text-[#0A2647]">{searchResult.address}</p>
+                      {/* Enrollment Number */}
+                      <div className="space-y-2">
+                        <p className="text-[16px] text-[#0A2647]/70 font-medium">{rt.enrollmentNumber}:</p>
+                        <p className="text-[22px] text-[#0A2647]">{result.enrollmentNumber}</p>
+                      </div>
+
+                      {/* COP Number */}
+                      <div className="space-y-2">
+                        <p className="text-[16px] text-[#0A2647]/70 font-medium">{rt.copNumber}:</p>
+                        <p className="text-[22px] text-[#0A2647]">{result.copNumber}</p>
+                      </div>
+
+                      {/* Address */}
+                      <div className="space-y-2">
+                        <p className="text-[16px] text-[#0A2647]/70 font-medium">{rt.address}:</p>
+                        <p className="text-[20px] text-[#0A2647]">{result.address}</p>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </Card>
+                  </Card>
+                ))}
+              </div>
             )}
 
             {/* Join WhatsApp Button - Shown for both cases */}
