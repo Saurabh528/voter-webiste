@@ -3,8 +3,8 @@ export type Language = "en" | "hi";
 // Campaign slogans - these remain in Hindi for both languages
 const HINDI_SLOGANS = {
   candidateName: "श्री अरुण कुमार त्रिपाठी",
-  primarySlogan: "अधिवक्ता एकता और सम्मान के लिए, कृपया श्री अरुण कुमार त्रिपाठी को सदस्य पद पर अपना बहुमूल्य समर्थन प्रदान करें।",
-  secondarySlogan: "आपका प्रथम वरीयता का मत, सम्मान और प्रगति की विजय बने।"
+  messagePart1: "अधिवक्ता एकता और सम्मान के लिए, कृपया श्री अरुण कुमार त्रिपाठी को सदस्य पद पर अपना बहुमूल्य समर्थन दें।",
+  messagePart2: "हर संघर्ष में अधिवक्ताओं के साथ, हर कदम पर साथ। Lawyer Protection Act से लेकर हर नीति तक — आपकी आवाज़ को सदैव बुलंद किया है। आपका प्रथम वरीयता का मत — सम्मान और प्रगति की विजय का आधार बने।"
 };
 
 export const translations = {
@@ -31,12 +31,12 @@ export const translations = {
       submitButton: "Submit & Search",
       skipButton: "Skip & Search"
     },
-    // Hero Section - Slogans remain in Hindi
+    // Hero Section - Messages remain in Hindi
     hero: {
       mainTitle: "Bar Council of Uttar Pradesh - Check Voter Registration",
       candidateName: HINDI_SLOGANS.candidateName,
-      primarySlogan: HINDI_SLOGANS.primarySlogan,
-      secondarySlogan: HINDI_SLOGANS.secondarySlogan,
+      messagePart1: HINDI_SLOGANS.messagePart1,
+      messagePart2: HINDI_SLOGANS.messagePart2,
       searchTitle: "Check Your Voter Registration Status"
     },
     // Search Section
@@ -105,12 +105,12 @@ export const translations = {
       submitButton: "सबमिट करें और खोजें",
       skipButton: "छोड़ें और खोजें"
     },
-    // Hero Section - Slogans in Hindi
+    // Hero Section - Messages in Hindi
     hero: {
       mainTitle: "बार कौंसिल ऑफ उत्तर प्रदेश - वोटर रजिस्ट्रेशन जांचें",
       candidateName: HINDI_SLOGANS.candidateName,
-      primarySlogan: HINDI_SLOGANS.primarySlogan,
-      secondarySlogan: HINDI_SLOGANS.secondarySlogan,
+      messagePart1: HINDI_SLOGANS.messagePart1,
+      messagePart2: HINDI_SLOGANS.messagePart2,
       searchTitle: "अपना वोटर रजिस्ट्रेशन स्टेटस जांचें"
     },
     // Search Section

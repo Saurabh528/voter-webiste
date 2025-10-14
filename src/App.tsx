@@ -138,12 +138,29 @@ export default function App() {
         <section className="bg-gradient-to-br from-[#0A2647] to-[#144272] text-white py-12 px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center space-y-6">
-              {/* Candidate Photo Placeholder */}
+              {/* Candidate Photo */}
               <div className="flex justify-center mb-6">
-                <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-white/10 border-4 border-[#FFD700] flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-[64px] sm:text-[72px] mb-2">⚖️</div>
-                    <p className="text-[14px] sm:text-[16px]">{t.hero.candidateName}</p>
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/10 border-3 border-[#FFD700] overflow-hidden flex items-center justify-center">
+                  <img 
+                    src="/cropped_arun.png" 
+                    alt="Shri Arun Kumar Tripathi"
+                    className="w-full h-full object-cover"
+                    style={{
+                      transform: 'scale(1.5) translate(-10%, -8%)',
+                      objectPosition: 'center center',
+                      borderRadius: '50%',
+                      aspectRatio: '1/1'
+                    }}
+                    onError={(e) => {
+                      // Fallback to emoji if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div className="text-center hidden w-full h-full items-center justify-center">
+                    <div className="text-[36px] sm:text-[42px]">👨‍💼</div>
                   </div>
                 </div>
               </div>
@@ -153,18 +170,21 @@ export default function App() {
                 <span className="text-[#FFD700]">{t.hero.candidateName}</span>
               </h2>
 
-              {/* Primary Slogan - Always in Hindi */}
+              {/* Campaign Messages - Always in Hindi */}
+              <div className="space-y-4">
+                {/* First Message - Yellow Box */}
               <Card className="p-6 sm:p-8 bg-[#FFD700] border-0">
-                <p className="text-[20px] sm:text-[24px] text-[#0A2647] leading-relaxed">
-                  {t.hero.primarySlogan}
+                  <p className="text-[18px] sm:text-[20px] text-[#0A2647] leading-relaxed text-center">
+                    {t.hero.messagePart1}
                 </p>
               </Card>
 
-              {/* Secondary Slogan - Always in Hindi */}
-              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg border-2 border-[#FFD700]">
-                <p className="text-[18px] sm:text-[22px] text-white leading-relaxed">
-                  {t.hero.secondarySlogan}
-                </p>
+                {/* Second Message - Grey Box */}
+                <div className="p-6 sm:p-8 bg-gray-600/20 backdrop-blur-sm rounded-lg border-2 border-gray-400/30">
+                  <p className="text-[18px] sm:text-[20px] text-white leading-relaxed text-center">
+                    {t.hero.messagePart2}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
