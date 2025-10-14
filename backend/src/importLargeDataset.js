@@ -20,15 +20,15 @@ const pool = new Pool({
 // Path to the final corrected CSV file
 // Try multiple possible paths for different deployment environments
 const possiblePaths = [
-  // Production paths - we're in /opt/render/project/src/backend, CSV files are in /opt/render/project/src/
-  path.join(process.cwd(), '../sample_voter_data.csv'),
+  // Production paths - prioritize main CSV file first
   path.join(process.cwd(), '../advocates_voter_list_corrected.csv'),
+  path.join(process.cwd(), '../sample_voter_data.csv'),
   // Alternative absolute paths
-  '/opt/render/project/src/sample_voter_data.csv',
   '/opt/render/project/src/advocates_voter_list_corrected.csv',
+  '/opt/render/project/src/sample_voter_data.csv',
   // Local development path
-  path.join(__dirname, '../../../sample_voter_data.csv'),
-  path.join(__dirname, '../../../advocates_voter_list_corrected.csv')
+  path.join(__dirname, '../../../advocates_voter_list_corrected.csv'),
+  path.join(__dirname, '../../../sample_voter_data.csv')
 ];
 
 // Find the first existing file
