@@ -20,7 +20,7 @@ const pool = new Pool({
 // Path to the final corrected CSV file
 // Try multiple possible paths for different deployment environments
 const CSV_FILE_PATH = process.env.NODE_ENV === 'production' 
-  ? '/opt/render/project/advocates_voter_list_corrected.csv'
+  ? path.join(process.cwd(), '../../advocates_voter_list_corrected.csv')
   : path.join(__dirname, '../../../advocates_voter_list_corrected.csv');
 
 // Debug: Log the path being used
