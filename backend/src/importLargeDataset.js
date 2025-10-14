@@ -23,6 +23,11 @@ const CSV_FILE_PATH = process.env.NODE_ENV === 'production'
   ? '/opt/render/project/advocates_voter_list_corrected.csv'
   : path.join(__dirname, '../../../advocates_voter_list_corrected.csv');
 
+// Debug: Log the path being used
+console.log('🔍 CSV_FILE_PATH:', CSV_FILE_PATH);
+console.log('🔍 Current working directory:', process.cwd());
+console.log('🔍 __dirname:', __dirname);
+
 /**
  * Sanitizes input to prevent SQL injection
  */
