@@ -52,7 +52,7 @@ export function ContactSection({ translations: t }: ContactSectionProps) {
   };
 
   const handleWhatsApp = () => {
-    window.open("https://chat.whatsapp.com/EMnAZAnTaf1HjgAzFZJNsE?mode=wwt", "_blank");
+    window.open("https://chat.whatsapp.com/Li9S9v5yaNEKIu5oVsUBaa?mode=wwt", "_blank");
   };
 
   const handleShare = (platform: string) => {

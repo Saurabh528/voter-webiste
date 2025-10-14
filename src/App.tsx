@@ -32,7 +32,7 @@ export default function App() {
   };
 
   const handleWhatsApp = () => {
-    window.open("https://chat.whatsapp.com/EMnAZAnTaf1HjgAzFZJNsE?mode=wwt", "_blank");
+    window.open("https://chat.whatsapp.com/Li9S9v5yaNEKIu5oVsUBaa?mode=wwt", "_blank");
   };
 
   const handleFacebookProfile = () => {
@@ -232,14 +232,14 @@ export default function App() {
                     {t.contact.contactNumbers}
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <a href="tel:+919721777720" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
+                      📞 +91 97217 77720
+                    </a>
                     <a href="tel:+919415300191" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
                       📞 +91 94153 00191
                     </a>
                     <a href="tel:+917905748686" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
                       📞 +91 79057 48686
-                    </a>
-                    <a href="tel:+919415451856" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
-                      📞 +91 94154 51856
                     </a>
                     <a href="tel:+919415819786" className="text-[20px] text-white/90 hover:text-[#FFD700] transition-colors">
                       📞 +91 94158 19786
@@ -247,7 +247,7 @@ export default function App() {
                   </div>
                   <div className="mt-4">
                     <a 
-                      href="https://chat.whatsapp.com/EMnAZAnTaf1HjgAzFZJNsE?mode=wwt" 
+                      href="https://chat.whatsapp.com/Li9S9v5yaNEKIu5oVsUBaa?mode=wwt" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-[18px] text-white/90 hover:text-[#FFD700] transition-colors bg-green-600/20 hover:bg-green-600/30 px-4 py-2 rounded-lg border border-green-500/30"
