@@ -21,7 +21,42 @@ import { Transform } from 'stream';
 // Setup paths
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const CSV_FILE_PATH = path.join(__dirname, '../../../advocates_voter_list_corrected.csv');
+// Try multiple possible paths for different deployment environments
+const possiblePaths = [
+  // Production paths - we're in /opt/render/project/src/backend, CSV files are in /opt/render/project/src/
+  path.join(process.cwd(), '../advocates_voter_list_corrected.csv'),
+  path.join(process.cwd(), '../sample_voter_data.csv'),
+  // Alternative absolute paths
+  '/opt/render/project/src/advocates_voter_list_corrected.csv',
+  '/opt/render/project/src/sample_voter_data.csv',
+  // Local development path
+  path.join(__dirname, '../../../advocates_voter_list_corrected.csv'),
+  path.join(__dirname, '../../../sample_voter_data.csv')
+];
+
+// Find the first existing file
+let CSV_FILE_PATH = null;
+for (const testPath of possiblePaths) {
+  try {
+    if (fs.existsSync(testPath)) {
+      CSV_FILE_PATH = testPath;
+      break;
+    }
+  } catch (error) {
+    // Continue to next path
+  }
+}
+
+// Debug: Log the path being used
+console.log('🔍 Current working directory:', process.cwd());
+console.log('🔍 __dirname:', __dirname);
+console.log('🔍 CSV_FILE_PATH found:', CSV_FILE_PATH);
+
+// Check if file exists
+if (!CSV_FILE_PATH || !fs.existsSync(CSV_FILE_PATH)) {
+  console.error('❌ CSV file not found! Tried paths:', possiblePaths);
+  process.exit(1);
+}
 
 // Setup DB pool
 const pool = new Pool({
