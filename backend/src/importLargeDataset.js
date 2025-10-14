@@ -19,14 +19,38 @@ const pool = new Pool({
 
 // Path to the final corrected CSV file
 // Try multiple possible paths for different deployment environments
-const CSV_FILE_PATH = process.env.NODE_ENV === 'production' 
-  ? path.join(process.cwd(), '../../advocates_voter_list_corrected.csv')
-  : path.join(__dirname, '../../../advocates_voter_list_corrected.csv');
+const possiblePaths = [
+  // Production paths
+  '/opt/render/project/advocates_voter_list_corrected.csv',
+  path.join(process.cwd(), '../../advocates_voter_list_corrected.csv'),
+  path.join(process.cwd(), '../../../advocates_voter_list_corrected.csv'),
+  // Local development path
+  path.join(__dirname, '../../../advocates_voter_list_corrected.csv')
+];
+
+// Find the first existing file
+let CSV_FILE_PATH = null;
+for (const testPath of possiblePaths) {
+  try {
+    if (fs.existsSync(testPath)) {
+      CSV_FILE_PATH = testPath;
+      break;
+    }
+  } catch (error) {
+    // Continue to next path
+  }
+}
 
 // Debug: Log the path being used
-console.log('🔍 CSV_FILE_PATH:', CSV_FILE_PATH);
 console.log('🔍 Current working directory:', process.cwd());
 console.log('🔍 __dirname:', __dirname);
+console.log('🔍 CSV_FILE_PATH found:', CSV_FILE_PATH);
+
+// Check if file exists
+if (!CSV_FILE_PATH || !fs.existsSync(CSV_FILE_PATH)) {
+  console.error('❌ CSV file not found! Tried paths:', possiblePaths);
+  process.exit(1);
+}
 
 /**
  * Sanitizes input to prevent SQL injection
