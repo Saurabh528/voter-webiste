@@ -8,6 +8,7 @@ import {
   getBilingualDistricts,
   getAllSpellingVariations
 } from './bilingualHelper.js';
+import { validateIndianMobileNumber, cleanPhoneInput } from './phoneValidation.js';
 
 dotenv.config();
 
@@ -239,16 +240,29 @@ app.post('/api/phone-capture', async (req, res) => {
       });
     }
 
+    // Clean and validate the phone number
+    const cleanedPhone = cleanPhoneInput(phoneNumber);
+    const validation = validateIndianMobileNumber(cleanedPhone);
+    
+    if (!validation.isValid) {
+      console.log('Invalid phone number rejected:', phoneNumber, '- Error:', validation.error);
+      return res.status(400).json({ 
+        error: validation.error || 'Invalid phone number',
+        isValid: false
+      });
+    }
+
     await client.query(`
       INSERT INTO phone_captures (phone_number, source)
       VALUES ($1, $2)
-    `, [phoneNumber, source || 'modal']);
+    `, [cleanedPhone, source || 'modal']);
 
-    console.log('Phone captured:', phoneNumber);
+    console.log('Valid phone captured:', cleanedPhone);
 
     res.json({
       success: true,
-      message: 'Phone number saved successfully'
+      message: 'Phone number saved successfully',
+      isValid: true
     });
   } catch (error) {
     console.error('Error saving phone number:', error);

@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card } from "./ui/card";
-import { Phone, X } from "lucide-react";
+import { Phone, X, AlertCircle } from "lucide-react";
 import { capturePhone } from "../utils/api";
+import { validateIndianMobileNumber, cleanPhoneInput } from "../utils/phoneValidation";
 
 interface PhoneCaptureModalProps {
   onClose: () => void;
@@ -19,24 +20,58 @@ interface PhoneCaptureModalProps {
 export function PhoneCaptureModal({ onClose, translations: t }: PhoneCaptureModalProps) {
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [validationError, setValidationError] = useState("");
+
+  const handlePhoneChange = (value: string) => {
+    const cleaned = cleanPhoneInput(value);
+    setPhone(cleaned);
+    
+    // Clear validation error when user starts typing
+    if (validationError) {
+      setValidationError("");
+    }
+  };
 
   const handleSubmit = async () => {
-    if (!phone.trim()) return;
+    if (!phone.trim()) {
+      setValidationError("Phone number is required");
+      return;
+    }
+    
+    // Validate the phone number
+    const validation = validateIndianMobileNumber(phone);
+    if (!validation.isValid) {
+      setValidationError(validation.error || "Invalid phone number");
+      return;
+    }
     
     try {
-      await capturePhone({
+      const response = await capturePhone({
         phoneNumber: phone.trim(),
         source: 'modal'
       });
+      
+      if (response && !response.isValid) {
+        setValidationError(response.error || "Invalid phone number");
+        return;
+      }
+      
       console.log("Phone captured:", phone);
       setSubmitted(true);
       
       setTimeout(() => {
         onClose();
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error capturing phone:", error);
-      // Still close modal even if API fails
+      
+      // Check if it's a validation error from the backend
+      if (error.response && error.response.data && error.response.data.error) {
+        setValidationError(error.response.data.error);
+        return;
+      }
+      
+      // For other errors, still close modal
       setSubmitted(true);
       setTimeout(() => {
         onClose();
@@ -78,14 +113,28 @@ export function PhoneCaptureModal({ onClose, translations: t }: PhoneCaptureModa
             </div>
 
             <div className="space-y-4">
-              <Input
-                type="tel"
-                placeholder={t.phonePlaceholder}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                className="text-[20px] py-7 px-4 border-2 border-[#0A2647]/20"
-              />
+              <div className="space-y-2">
+                <Input
+                  type="tel"
+                  placeholder={t.phonePlaceholder}
+                  value={phone}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                  className={`text-[20px] py-7 px-4 border-2 ${
+                    validationError 
+                      ? "border-red-500 focus:border-red-500" 
+                      : "border-[#0A2647]/20 focus:border-[#FFD700]"
+                  }`}
+                  maxLength={10}
+                />
+                
+                {validationError && (
+                  <div className="flex items-center gap-2 text-red-600 text-[16px]">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{validationError}</span>
+                  </div>
+                )}
+              </div>
 
               <Button
                 onClick={handleSubmit}

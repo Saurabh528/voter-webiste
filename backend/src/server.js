@@ -18,6 +18,7 @@ import {
   getBilingualDistricts,
   getAllSpellingVariations
 } from './bilingualHelper.js';
+import { validateIndianMobileNumber, cleanPhoneInput } from './phoneValidation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -274,8 +275,20 @@ app.post('/api/phone-capture', async (req, res) => {
       });
     }
 
+    // Clean and validate the phone number
+    const cleanedPhone = cleanPhoneInput(phoneNumber);
+    const validation = validateIndianMobileNumber(cleanedPhone);
+    
+    if (!validation.isValid) {
+      console.log('Invalid phone number rejected:', phoneNumber, '- Error:', validation.error);
+      return res.status(400).json({ 
+        error: validation.error || 'Invalid phone number',
+        isValid: false
+      });
+    }
+
     const captureEntry = {
-      phoneNumber,
+      phoneNumber: cleanedPhone,
       source: source || 'modal',
       timestamp: new Date().toISOString()
     };
@@ -288,11 +301,12 @@ app.post('/api/phone-capture', async (req, res) => {
       console.error('Failed to save phone capture to CSV:', err)
     );
 
-    console.log('Phone captured:', phoneNumber);
+    console.log('Valid phone captured:', cleanedPhone);
 
     res.json({
       success: true,
-      message: 'Phone number saved successfully'
+      message: 'Phone number saved successfully',
+      isValid: true
     });
   } catch (error) {
     console.error('Error saving phone number:', error);
