@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { CheckCircle2, XCircle, Search, MessageSquare, Phone } from "lucide-react";
 import { upDistricts } from "../utils/translations";
 import { searchByEnrollment, searchByNameDistrict, getBilingualDistricts } from "../utils/api";
+import { sanitizeEnrollmentInput, sanitizeNameInput, isEnrollmentInputSafe, isNameInputSafe } from "../utils/inputSanitization";
 import type { VoterResult as ApiVoterResult } from "../utils/api";
 
 interface VoterResult {
@@ -289,7 +290,11 @@ export function VoterSearchSection({
                       type="text"
                       placeholder={st.enrollmentPlaceholder}
                       value={enrollmentNumber}
-                      onChange={(e) => setEnrollmentNumber(e.target.value)}
+                      onChange={(e) => {
+                        if (isEnrollmentInputSafe(e.target.value)) {
+                          setEnrollmentNumber(sanitizeEnrollmentInput(e.target.value));
+                        }
+                      }}
                       onKeyDown={(e) => e.key === "Enter" && initiateSearch("enrollment")}
                       className="text-[20px] py-7 px-4 border-2 border-[#0A2647]/20 focus:border-[#FFD700]"
                     />
@@ -330,7 +335,11 @@ export function VoterSearchSection({
                       type="text"
                       placeholder={st.namePlaceholder}
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e) => {
+                        if (isNameInputSafe(e.target.value)) {
+                          setName(sanitizeNameInput(e.target.value));
+                        }
+                      }}
                       className="text-[20px] py-7 px-4 border-2 border-[#0A2647]/20 focus:border-[#FFD700]"
                     />
                   </div>

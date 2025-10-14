@@ -8,7 +8,7 @@ import {
   getBilingualDistricts,
   getAllSpellingVariations
 } from './bilingualHelper.js';
-import { validateIndianMobileNumber, cleanPhoneInput } from './phoneValidation.js';
+import { validateIndianMobileNumber, cleanPhoneInput, isInputSafe } from './phoneValidation.js';
 
 dotenv.config();
 
@@ -237,6 +237,15 @@ app.post('/api/phone-capture', async (req, res) => {
     if (!phoneNumber) {
       return res.status(400).json({ 
         error: 'Phone number is required' 
+      });
+    }
+
+    // SECURITY: Check if input is safe first
+    if (!isInputSafe(phoneNumber)) {
+      console.log('SECURITY ALERT: Dangerous input detected:', phoneNumber);
+      return res.status(400).json({ 
+        error: 'Invalid input detected',
+        isValid: false
       });
     }
 

@@ -56,25 +56,66 @@ export function validateIndianMobileNumber(phoneNumber) {
 }
 
 /**
- * Cleans phone number input
+ * Sanitizes and cleans phone number input - STRICT SECURITY
  * @param {string} input - User input
- * @returns {string} Cleaned phone number
+ * @returns {string} Cleaned phone number (only digits)
  */
 export function cleanPhoneInput(input) {
-  if (!input) return '';
+  if (!input || typeof input !== 'string') {
+    return '';
+  }
   
-  // Remove all non-digit characters except + at the beginning
-  let cleaned = input.replace(/[^\d+]/g, '');
+  // STRICT: Only allow digits - remove ALL other characters including +, -, spaces, etc.
+  let cleaned = input.replace(/[^\d]/g, '');
   
-  // Remove leading +91 or 91 if present
-  if (cleaned.startsWith('+91')) {
-    cleaned = cleaned.substring(3);
-  } else if (cleaned.startsWith('91')) {
+  // Remove leading 91 if present (Indian country code)
+  if (cleaned.startsWith('91') && cleaned.length === 12) {
     cleaned = cleaned.substring(2);
   }
   
-  // Limit to 10 digits
+  // Limit to exactly 10 digits maximum
   cleaned = cleaned.substring(0, 10);
   
   return cleaned;
+}
+
+/**
+ * Validates input contains only safe characters - SECURITY CHECK
+ * @param {string} input - User input
+ * @returns {boolean} true if input is safe
+ */
+export function isInputSafe(input) {
+  if (!input || typeof input !== 'string') {
+    return true; // Empty/null is safe
+  }
+  
+  // Only allow digits, spaces, +, and - for phone numbers
+  const safePattern = /^[\d\s+\-]*$/;
+  
+  // Check for common SQL injection patterns
+  const dangerousPatterns = [
+    /['"`;]/g,           // Quotes and semicolons
+    /(\/\*|\*\/)/g,      // SQL comments
+    /(union|select|insert|update|delete|drop|create|alter)/gi, // SQL keywords
+    /(<script|javascript:|on\w+\s*=)/gi, // XSS patterns
+    /(\bor\b|\band\b)/gi, // Boolean operators
+    /(exec|execute)/gi,   // Execution commands
+    /(xp_|sp_)/gi,       // SQL Server procedures
+    /(script|iframe|object|embed)/gi, // HTML injection
+    /(eval|function|setTimeout|setInterval)/gi, // Code injection
+  ];
+  
+  // Check if input contains only safe characters
+  if (!safePattern.test(input)) {
+    return false;
+  }
+  
+  // Check for dangerous patterns
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(input)) {
+      return false;
+    }
+  }
+  
+  return true;
 }

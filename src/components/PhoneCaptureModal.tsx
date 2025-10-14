@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import { Card } from "./ui/card";
 import { Phone, X, AlertCircle } from "lucide-react";
 import { capturePhone } from "../utils/api";
-import { validateIndianMobileNumber, cleanPhoneInput } from "../utils/phoneValidation";
+import { validateIndianMobileNumber, cleanPhoneInput, isInputSafe } from "../utils/phoneValidation";
 
 interface PhoneCaptureModalProps {
   onClose: () => void;
@@ -23,6 +23,12 @@ export function PhoneCaptureModal({ onClose, translations: t }: PhoneCaptureModa
   const [validationError, setValidationError] = useState("");
 
   const handlePhoneChange = (value: string) => {
+    // SECURITY: Check if input is safe first
+    if (!isInputSafe(value)) {
+      setValidationError("Invalid characters detected. Only numbers are allowed.");
+      return;
+    }
+    
     const cleaned = cleanPhoneInput(value);
     setPhone(cleaned);
     
