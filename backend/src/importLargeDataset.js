@@ -18,7 +18,10 @@ const pool = new Pool({
 });
 
 // Path to the final corrected CSV file
-const CSV_FILE_PATH = path.join(__dirname, '../../../advocates_voter_list_corrected.csv');
+// Try multiple possible paths for different deployment environments
+const CSV_FILE_PATH = process.env.NODE_ENV === 'production' 
+  ? '/opt/render/project/advocates_voter_list_corrected.csv'
+  : path.join(__dirname, '../../../advocates_voter_list_corrected.csv');
 
 /**
  * Sanitizes input to prevent SQL injection
