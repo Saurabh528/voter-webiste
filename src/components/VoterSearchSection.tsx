@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { CheckCircle2, XCircle, Search, MessageSquare, Phone } from "lucide-react";
-import { upDistricts } from "../utils/translations";
+import { upDistricts, districtMappings } from "../utils/translations";
 import { searchByEnrollment, searchByNameDistrict, getBilingualDistricts } from "../utils/api";
 import { sanitizeEnrollmentInput, sanitizeNameInput, isEnrollmentInputSafe, isNameInputSafe } from "../utils/inputSanitization";
 import type { VoterResult as ApiVoterResult } from "../utils/api";
@@ -40,6 +40,7 @@ interface VoterSearchSectionProps {
     notRegistered: string;
     notRegisteredContact: string;
     contactNumber: string;
+    callButton: string;
     enrollmentNumber: string;
     copNumber: string;
     address: string;
@@ -64,6 +65,8 @@ export function VoterSearchSection({
   const [enrollmentNumber, setEnrollmentNumber] = useState("");
   const [name, setName] = useState("");
   const [district, setDistrict] = useState("");
+  const [districtSearchTerm, setDistrictSearchTerm] = useState("");
+  const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [searchResult, setSearchResult] = useState<VoterResult | null | "not-found">(null);
   const [allResults, setAllResults] = useState<VoterResult[]>([]); // Store all matching results
@@ -87,11 +90,13 @@ export function VoterSearchSection({
         console.log('Loading bilingual districts...');
         const response = await getBilingualDistricts();
         console.log('Bilingual districts response:', response);
-        setBilingualDistricts(response.districts);
+        if (response.districts && response.districts.length > 0) {
+          setBilingualDistricts(response.districts);
+        }
         setDistrictsLoaded(true);
       } catch (error) {
-        console.error('Failed to load bilingual districts, using fallback:', error);
-        // Fallback to default districts
+        console.error('Failed to load bilingual districts, using default:', error);
+        // Use default fallback from translations
         setDistrictsLoaded(true);
       }
     }
@@ -392,26 +397,102 @@ export function VoterSearchSection({
                     <Label htmlFor="district" className="text-[20px] text-[#0A2647]">
                       {st.districtLabel}
                     </Label>
-                    <Select value={district} onValueChange={setDistrict}>
-                      <SelectTrigger className="text-[20px] py-7 px-4 border-2 border-[#0A2647]/20">
-                        <SelectValue placeholder={st.districtPlaceholder} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        {districtsLoaded && bilingualDistricts.length > 0 ? (
-                          bilingualDistricts.map((dist) => (
-                            <SelectItem key={dist.value} value={dist.value} className="text-[18px] py-3">
-                              {dist.display}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          upDistricts.map((dist) => (
-                          <SelectItem key={dist} value={dist} className="text-[18px] py-3">
-                            {dist}
-                          </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
+
+                    {/* Industry Standard Dropdown */}
+                    <div className="relative">
+                      <div
+                        onClick={() => setIsDistrictDropdownOpen(!isDistrictDropdownOpen)}
+                        className="text-[20px] py-7 px-4 border-2 border-[#0A2647]/20 rounded-md cursor-pointer bg-white hover:border-[#FFD700] transition-colors flex items-center justify-between"
+                      >
+                        <span className={district ? "text-[#0A2647]" : "text-gray-400"}>
+                          {district ? (bilingualDistricts.find(d => d.value === district)?.display || district) : st.districtPlaceholder}
+                        </span>
+                        <span className="text-gray-400">▼</span>
+                      </div>
+
+                      {isDistrictDropdownOpen && (
+                        <>
+                          {/* Backdrop */}
+                          <div
+                            className="fixed inset-0 z-40"
+                            onClick={() => setIsDistrictDropdownOpen(false)}
+                          />
+
+                          {/* Dropdown List */}
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-xl z-50">
+                            {/* Search Input */}
+                            <div className="p-3 border-b border-gray-200 bg-gray-50">
+                              <Input
+                                type="text"
+                                placeholder="Type to search..."
+                                value={districtSearchTerm}
+                                onChange={(e) => setDistrictSearchTerm(e.target.value)}
+                                className="text-[16px] py-2 border-gray-300"
+                                autoFocus
+                              />
+                            </div>
+
+                            {/* Scrollable List - Shows only 6 items, scroll for more */}
+                            <div
+                              className="overflow-y-scroll overflow-x-hidden"
+                              style={{ maxHeight: '270px' }}
+                            >
+                              {(districtsLoaded && bilingualDistricts.length > 0
+                                ? bilingualDistricts
+                                : upDistricts.map(d => ({
+                                    value: d,
+                                    display: `${d} (${districtMappings[d]})`,
+                                    english: d,
+                                    hindi: districtMappings[d]
+                                  }))
+                              )
+                                .filter(dist =>
+                                  !districtSearchTerm ||
+                                  dist.display.toLowerCase().includes(districtSearchTerm.toLowerCase()) ||
+                                  dist.english.toLowerCase().includes(districtSearchTerm.toLowerCase()) ||
+                                  dist.hindi.includes(districtSearchTerm)
+                                )
+                                .map((dist) => (
+                                  <div
+                                    key={dist.value}
+                                    onClick={() => {
+                                      setDistrict(dist.value);
+                                      setDistrictSearchTerm("");
+                                      setIsDistrictDropdownOpen(false);
+                                    }}
+                                    className="px-4 py-3.5 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
+                                  >
+                                    <span className="text-[17px] text-gray-800">
+                                      {dist.english} <span className="text-gray-600">({dist.hindi})</span>
+                                    </span>
+                                  </div>
+                                ))
+                              }
+
+                              {/* No results */}
+                              {(districtsLoaded && bilingualDistricts.length > 0
+                                ? bilingualDistricts
+                                : upDistricts.map(d => ({
+                                    value: d,
+                                    display: `${d} (${districtMappings[d]})`,
+                                    english: d,
+                                    hindi: districtMappings[d]
+                                  }))
+                              ).filter(dist =>
+                                !districtSearchTerm ||
+                                dist.display.toLowerCase().includes(districtSearchTerm.toLowerCase()) ||
+                                dist.english.toLowerCase().includes(districtSearchTerm.toLowerCase()) ||
+                                dist.hindi.includes(districtSearchTerm)
+                              ).length === 0 && (
+                                <div className="px-4 py-6 text-center text-gray-500 text-[15px]">
+                                  No district found
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex gap-4">
@@ -468,7 +549,7 @@ export function VoterSearchSection({
                           className="text-[18px] py-6 px-8 bg-[#0A2647] hover:bg-[#144272] text-white"
                         >
                           <Phone className="w-5 h-5 mr-2" />
-                          कॉल करें
+                          {rt.callButton}
                         </Button>
                       </div>
                     </div>
@@ -546,7 +627,7 @@ export function VoterSearchSection({
                                   className="text-[18px] py-6 px-8 bg-[#0A2647] hover:bg-[#144272] text-white"
                                 >
                                   <Phone className="w-5 h-5 mr-2" />
-                                  कॉल करें
+                                  {rt.callButton}
                                 </Button>
                               </div>
                             </div>

@@ -135,55 +135,61 @@ export default function App() {
       {/* Main Content */}
       <main>
         {/* Candidate Promotion Section */}
-        <section className="bg-gradient-to-br from-[#0A2647] to-[#144272] text-white py-12 px-4">
-          <div className="max-w-4xl mx-auto">
+        <section className="bg-gradient-to-br from-[#0A2647] to-[#144272] text-white py-12 sm:py-16 px-4">
+          <div className="max-w-5xl mx-auto">
             <div className="text-center space-y-6">
-              {/* Candidate Photo */}
+              {/* Candidate Photo - Professional Circular Frame */}
               <div className="flex justify-center mb-6">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/10 border-3 border-[#FFD700] overflow-hidden flex items-center justify-center">
-                  <img 
-                    src="/cropped_arun.png" 
-                    alt="Shri Arun Kumar Tripathi"
-                    className="w-full h-full object-cover"
-                    style={{
-                      transform: 'scale(1.5) translate(-10%, -8%)',
-                      objectPosition: 'center center',
-                      borderRadius: '50%',
-                      aspectRatio: '1/1'
-                    }}
-                    onError={(e) => {
-                      // Fallback to emoji if image fails to load
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
-                    }}
-                  />
-                  <div className="text-center hidden w-full h-full items-center justify-center">
-                    <div className="text-[36px] sm:text-[42px]">👨‍💼</div>
+                <div className="relative inline-block">
+                  {/* Gold border circle */}
+                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56">
+                    {/* Photo container with circular mask and border */}
+                    <img
+                      src="/IMG-20230417-WA0001.jpg"
+                      alt="Shri Arun Kumar Tripathi"
+                      className="w-full h-full rounded-full border-4 border-[#FFD700] shadow-2xl"
+                      style={{
+                        objectFit: 'cover',
+                        objectPosition: '50% 30%',
+                        aspectRatio: '1 / 1'
+                      }}
+                    />
                   </div>
                 </div>
               </div>
 
-              {/* Candidate Name - Always in Hindi */}
-              <h2 className="text-[28px] sm:text-[36px]">
-                <span className="text-[#FFD700]">{t.hero.candidateName}</span>
-              </h2>
+              {/* Candidate Name */}
+              <div className="space-y-3">
+                <h2 className="text-[32px] sm:text-[40px] md:text-[44px] font-bold tracking-tight">
+                  <span className="text-[#FFD700]">{t.hero.candidateName}</span>
+                </h2>
+                <div className="w-24 h-1.5 bg-[#FFD700] mx-auto rounded-full"></div>
+              </div>
 
-              {/* Campaign Messages - Always in Hindi */}
-              <div className="space-y-4">
-                {/* First Message - Yellow Box */}
-              <Card className="p-6 sm:p-8 bg-[#FFD700] border-0">
-                  <p className="text-[18px] sm:text-[20px] text-[#0A2647] leading-relaxed text-center">
-                    {t.hero.messagePart1}
-                </p>
-              </Card>
+              {/* Campaign Messages - 2 Compact Boxes */}
+              <div className="space-y-6 pt-4">
+                {/* Box 1 - Yellow - Compact */}
+                <div className="flex justify-center">
+                  <Card className="inline-block p-6 sm:p-7 md:p-8 bg-[#FFD700] border-4 border-[#0A2647] shadow-xl rounded-xl">
+                    <p className="text-[20px] sm:text-[24px] md:text-[28px] text-[#000000] text-center leading-[1.6] font-bold">
+                      {t.hero.message1}
+                    </p>
+                    <p className="text-[18px] sm:text-[22px] md:text-[26px] text-[#000000] text-center leading-[1.6] font-semibold mt-4">
+                      {t.hero.message2}
+                    </p>
+                  </Card>
+                </div>
 
-                {/* Second Message - Grey Box */}
-                <div className="p-6 sm:p-8 bg-gray-600/20 backdrop-blur-sm rounded-lg border-2 border-gray-400/30">
-                  <p className="text-[18px] sm:text-[20px] text-white leading-relaxed text-center">
-                    {t.hero.messagePart2}
-                  </p>
+                {/* Box 2 - White - Compact */}
+                <div className="flex justify-center">
+                  <Card className="inline-block p-6 sm:p-7 md:p-8 bg-white border-4 border-[#0A2647] shadow-xl rounded-xl">
+                    <p className="text-[18px] sm:text-[22px] md:text-[26px] text-[#0A2647] text-center leading-[1.6] font-semibold">
+                      {t.hero.message3}
+                    </p>
+                    <p className="text-[22px] sm:text-[26px] md:text-[30px] text-[#0A2647] text-center leading-[1.6] font-extrabold mt-4">
+                      {t.hero.message4}
+                    </p>
+                  </Card>
                 </div>
               </div>
             </div>

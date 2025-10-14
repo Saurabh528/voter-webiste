@@ -43,6 +43,7 @@ export function validateIndianMobileNumber(phoneNumber: string): {
   const invalidPatterns = [
     /^(\d)\1{9}$/,  // All same digits (1111111111)
     /^(1234567890|0987654321)$/,  // Sequential patterns
+    /^(\d{2})\1{4}$/,  // Repeated pairs (1212121212)
   ];
   
   for (const pattern of invalidPatterns) {

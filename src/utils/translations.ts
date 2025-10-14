@@ -3,8 +3,18 @@ export type Language = "en" | "hi";
 // Campaign slogans - these remain in Hindi for both languages
 const HINDI_SLOGANS = {
   candidateName: "श्री अरुण कुमार त्रिपाठी",
-  messagePart1: "अधिवक्ता एकता और सम्मान के लिए, कृपया श्री अरुण कुमार त्रिपाठी को सदस्य पद पर अपना बहुमूल्य समर्थन दें।",
-  messagePart2: "हर संघर्ष में अधिवक्ताओं के साथ, हर कदम पर साथ। Lawyer Protection Act से लेकर हर नीति तक — आपकी आवाज़ को सदैव बुलंद किया है। आपका प्रथम वरीयता का मत — सम्मान और प्रगति की विजय का आधार बने।"
+  message1: "अधिवक्ताओं की एकता और सम्मान के लिए — कृपया श्री अरुण कुमार त्रिपाठी को सदस्य पद पर अपना अटल समर्थन दें।",
+  message2: "वकील संरक्षण विधेयक की लड़ाई से लेकर बार सुविधाओं की मांग तक — हर मोर्चे पर अधिवक्ता हितों की दृढ़ रक्षा की है।",
+  message3: "भ्रष्टाचार-मुक्त न्याय व्यवस्था और युवा वकीलों के सशक्तिकरण के लिए सदैव सक्रिय और प्रतिबद्ध रहे हैं।",
+  message4: "आपका पहला मत — एक मजबूत, संयुक्त और सम्मानित बार की नींव बने।"
+};
+
+const ENGLISH_SLOGANS = {
+  candidateName: "Mr. Arun Kumar Tripathi",
+  message1: "For unity and respect of all advocates — please give your strong support to Mr. Arun Kumar Tripathi for Member position.",
+  message2: "From the fight for the Lawyer Protection Act to the demand for better Bar facilities — he has always stood for advocate welfare.",
+  message3: "Committed to a corruption-free justice system and the empowerment of young lawyers.",
+  message4: "Your first vote will build a strong, united, and respected Bar."
 };
 
 export const translations = {
@@ -31,12 +41,14 @@ export const translations = {
       submitButton: "Submit & Search",
       skipButton: "Skip & Search"
     },
-    // Hero Section - Messages remain in Hindi
+    // Hero Section - English messages
     hero: {
       mainTitle: "Bar Council of Uttar Pradesh - Check Voter Registration",
-      candidateName: HINDI_SLOGANS.candidateName,
-      messagePart1: HINDI_SLOGANS.messagePart1,
-      messagePart2: HINDI_SLOGANS.messagePart2,
+      candidateName: ENGLISH_SLOGANS.candidateName,
+      message1: ENGLISH_SLOGANS.message1,
+      message2: ENGLISH_SLOGANS.message2,
+      message3: ENGLISH_SLOGANS.message3,
+      message4: ENGLISH_SLOGANS.message4,
       searchTitle: "Check Your Voter Registration Status"
     },
     // Search Section
@@ -59,21 +71,22 @@ export const translations = {
       notRegistered: "Your name is not in the voter list.",
       notRegisteredContact: "For any assistance or information, please contact Shri Arun Kumar Tripathi at this number:",
       contactNumber: "9415300191",
+      callButton: "Call Now",
       enrollmentNumber: "Enrollment Number",
       copNumber: "COP Number",
       address: "Address",
       searchAgain: "Search Again",
       joinWhatsApp: "Join our WhatsApp group for every election update",
-      joinWhatsAppButton: "चुनाव की हर अपडेट के लिए हमारा व्हाट्सएप ग्रुप ज्वाइन करें"
+      joinWhatsAppButton: "Join our WhatsApp group for every election update"
     },
     // Contact & Footer
     contact: {
       title: "Contact Us",
       phone: "Phone",
       whatsapp: "WhatsApp",
-      joinCampaign: "श्री अरुण त्रिपाठी जी के अभियान से जुड़ें",
-      joinSubtitle: "नियमित अपडेट पाने और संवाद करने के लिए, कृपया हमसे संपर्क करें।",
-      whatsappUpdate: "अपडेट्स और संवाद के लिए व्हाट्सएप पर जुड़ें",
+      joinCampaign: "Join Shri Arun Tripathi's Campaign",
+      joinSubtitle: "For regular updates and communication, please contact us.",
+      whatsappUpdate: "Join us on WhatsApp for updates and communication",
       contactNumbers: "Contact Numbers",
       followUs: "Follow Us on Social Media"
     },
@@ -105,12 +118,14 @@ export const translations = {
       submitButton: "सबमिट करें और खोजें",
       skipButton: "छोड़ें और खोजें"
     },
-    // Hero Section - Messages in Hindi
+    // Hero Section - Hindi messages
     hero: {
       mainTitle: "बार कौंसिल ऑफ उत्तर प्रदेश - वोटर रजिस्ट्रेशन जांचें",
       candidateName: HINDI_SLOGANS.candidateName,
-      messagePart1: HINDI_SLOGANS.messagePart1,
-      messagePart2: HINDI_SLOGANS.messagePart2,
+      message1: HINDI_SLOGANS.message1,
+      message2: HINDI_SLOGANS.message2,
+      message3: HINDI_SLOGANS.message3,
+      message4: HINDI_SLOGANS.message4,
       searchTitle: "अपना वोटर रजिस्ट्रेशन स्टेटस जांचें"
     },
     // Search Section
@@ -133,6 +148,7 @@ export const translations = {
       notRegistered: "आपका नाम मतदाता सूची में नहीं है।",
       notRegisteredContact: "किसी भी सहायता या जानकारी के लिए, कृपया श्री अरुण कुमार त्रिपाठी से इस नंबर पर संपर्क करें:",
       contactNumber: "9415300191",
+      callButton: "कॉल करें",
       enrollmentNumber: "एनरोलमेंट नंबर",
       copNumber: "COP नंबर",
       address: "पता",
@@ -158,23 +174,84 @@ export const translations = {
   }
 };
 
-// UP Districts (75 official districts - fallback if API fails)
-export const upDistricts = [
-  "AGRA", "ALIGARH", "ALLAHABAD", "PRAYAGRAJ", "AMBEDKAR NAGAR", "AMETHI", "AMROHA", "AURAIYA", "AYODHYA", "AZAMGARH",
-  "BAGHPAT", "BAHRAICH", "BALLIA", "BALRAMPUR", "BANDA", "BARABANKI", "BAREILLY", "BASTI", "BHADOHI", "BIJNOR", "BUDAUN", "BULANDSHAHR",
-  "CHANDAULI", "CHITRAKOOT",
-  "DEORIA",
-  "ETAH", "ETAWAH",
-  "FARRUKHABAD", "FATEHPUR", "FIROZABAD",
-  "GAUTAM BUDDHA NAGAR", "NOIDA", "GHAZIABAD", "GHAZIPUR", "GONDA", "GORAKHPUR",
-  "HAMIRPUR", "HAPUR", "HARDOI", "HATHRAS",
-  "JALAUN", "JAUNPUR", "JHANSI",
-  "KANNAUJ", "KANPUR DEHAT", "KANPUR NAGAR", "KANPUR", "KASGANJ", "KAUSHAMBI", "KUSHINAGAR",
-  "LAKHIMPUR KHERI", "LALITPUR", "LUCKNOW",
-  "MAHARAJGANJ", "MAHOBA", "MAINPURI", "MATHURA", "MAU", "MEERUT", "MIRZAPUR", "MORADABAD", "MUZAFFARNAGAR",
-  "PILIBHIT", "PRATAPGARH",
-  "RAEBARELI", "RAMPUR",
-  "SAHARANPUR", "SAMBHAL", "SANT KABIR NAGAR", "SHAHJAHANPUR", "SHAMLI", "SHRAVASTI", "SIDDHARTHNAGAR", "SITAPUR", "SONBHADRA", "SULTANPUR",
-  "UNNAO",
-  "VARANASI"
-];
+// UP Districts - Bilingual mappings (75 official districts - fallback if API fails)
+export const districtMappings: Record<string, string> = {
+  'AGRA': 'आगरा',
+  'ALIGARH': 'अलीगढ़',
+  'AMBEDKAR NAGAR': 'अम्बेडकर नगर',
+  'AMETHI': 'अमेठी',
+  'AMROHA': 'अमरोहा',
+  'AURAIYA': 'औरैया',
+  'AYODHYA': 'अयोध्या',
+  'AZAMGARH': 'आज़मगढ़',
+  'BAGHPAT': 'बागपत',
+  'BAHRAICH': 'बहराइच',
+  'BALLIA': 'बलिया',
+  'BALRAMPUR': 'बलरामपुर',
+  'BANDA': 'बांदा',
+  'BARABANKI': 'बाराबंकी',
+  'BAREILLY': 'बरेली',
+  'BASTI': 'बस्ती',
+  'BHADOHI': 'भदोही',
+  'BIJNOR': 'बिजनौर',
+  'BUDAUN': 'बदायूं',
+  'BULANDSHAHR': 'बुलंदशहर',
+  'CHANDAULI': 'चंदौली',
+  'CHITRAKOOT': 'चित्रकूट',
+  'DEORIA': 'देवरिया',
+  'ETAH': 'एटा',
+  'ETAWAH': 'इटावा',
+  'FARRUKHABAD': 'फर्रुखाबाद',
+  'FATEHPUR': 'फतेहपुर',
+  'FIROZABAD': 'फिरोजाबाद',
+  'GAUTAM BUDDHA NAGAR': 'गौतम बुद्ध नगर',
+  'GHAZIABAD': 'गाजियाबाद',
+  'GHAZIPUR': 'गाजीपुर',
+  'GONDA': 'गोंडा',
+  'GORAKHPUR': 'गोरखपुर',
+  'HAMIRPUR': 'हमीरपुर',
+  'HAPUR': 'हापुड़',
+  'HARDOI': 'हरदोई',
+  'HATHRAS': 'हाथरस',
+  'JALAUN': 'जालौन',
+  'JAUNPUR': 'जौनपुर',
+  'JHANSI': 'झांसी',
+  'KANNAUJ': 'कन्नौज',
+  'KANPUR DEHAT': 'कानपुर देहात',
+  'KANPUR NAGAR': 'कानपुर नगर',
+  'KASGANJ': 'कासगंज',
+  'KAUSHAMBI': 'कौशाम्बी',
+  'KUSHINAGAR': 'कुशीनगर',
+  'LAKHIMPUR KHERI': 'लखीमपुर खीरी',
+  'LALITPUR': 'ललितपुर',
+  'LUCKNOW': 'लखनऊ',
+  'MAHARAJGANJ': 'महाराजगंज',
+  'MAHOBA': 'महोबा',
+  'MAINPURI': 'मैनपुरी',
+  'MATHURA': 'मथुरा',
+  'MAU': 'मऊ',
+  'MEERUT': 'मेरठ',
+  'MIRZAPUR': 'मिर्जापुर',
+  'MORADABAD': 'मुरादाबाद',
+  'MUZAFFARNAGAR': 'मुज़फ़्फ़रनगर',
+  'PILIBHIT': 'पीलीभीत',
+  'PRATAPGARH': 'प्रतापगढ़',
+  'PRAYAGRAJ': 'प्रयागराज',
+  'RAEBARELI': 'रायबरेली',
+  'RAMPUR': 'रामपुर',
+  'SAHARANPUR': 'सहारनपुर',
+  'SAMBHAL': 'संभल',
+  'SANT KABIR NAGAR': 'संत कबीर नगर',
+  'SHAHJAHANPUR': 'शाहजहांपुर',
+  'SHAMLI': 'शामली',
+  'SHRAVASTI': 'श्रावस्ती',
+  'SIDDHARTHNAGAR': 'सिद्धार्थनगर',
+  'SITAPUR': 'सीतापुर',
+  'SONBHADRA': 'सोनभद्र',
+  'SULTANPUR': 'सुल्तानपुर',
+  'UNNAO': 'उन्नाव',
+  'VARANASI': 'वाराणसी'
+};
+
+// UP Districts array (for backward compatibility)
+export const upDistricts = Object.keys(districtMappings);
