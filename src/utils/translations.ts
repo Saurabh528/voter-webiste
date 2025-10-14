@@ -41,8 +41,8 @@ export const translations = {
     },
     // Search Section
     search: {
-      tabEnrollment: "Search by Enrollment Number",
-      tabNameDistrict: "Search by Name and District",
+      tabEnrollment: "By Enrollment",
+      tabNameDistrict: "By Name & District",
       enrollmentLabel: "Enter your Enrollment Number",
       enrollmentPlaceholder: "e.g., UP10579/13",
       nameLabel: "Full Name",
@@ -115,8 +115,8 @@ export const translations = {
     },
     // Search Section
     search: {
-      tabEnrollment: "एनरोलमेंट नंबर से खोजें",
-      tabNameDistrict: "नाम और जिले से खोजें",
+      tabEnrollment: "एनरोलमेंट से",
+      tabNameDistrict: "नाम व जिले से",
       enrollmentLabel: "अपना एनरोलमेंट नंबर दर्ज करें",
       enrollmentPlaceholder: "उदा., UP10579/13",
       nameLabel: "पूरा नाम",

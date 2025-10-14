@@ -267,11 +267,11 @@ export function VoterSearchSection({
       <div className="max-w-4xl mx-auto">
         {!searchResult ? (
           <Tabs defaultValue="enrollment" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-auto p-2 mb-6">
-              <TabsTrigger value="enrollment" className="text-[18px] py-4">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto p-2 mb-6 gap-2">
+              <TabsTrigger value="enrollment" className="text-[16px] sm:text-[18px] py-4 px-3">
                 {st.tabEnrollment}
               </TabsTrigger>
-              <TabsTrigger value="name" className="text-[18px] py-4">
+              <TabsTrigger value="name" className="text-[16px] sm:text-[18px] py-4 px-3">
                 {st.tabNameDistrict}
               </TabsTrigger>
             </TabsList>
