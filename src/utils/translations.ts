@@ -3,8 +3,8 @@ export type Language = "en" | "hi";
 // Campaign slogans - these remain in Hindi for both languages
 const HINDI_SLOGANS = {
   candidateName: "श्री अरुण कुमार त्रिपाठी",
-  primarySlogan: "अधिवक्ता एकता और सम्मान के लिए, श्री अरुण कुमार त्रिपाठी को सदस्य पद पर अपना समर्थन दें। मोहर लगाएं वरीयता (1) पर।",
-  secondarySlogan: "आपका समर्थन, विजय का आधार। प्रथम वरीयता (1) पर मुहर इस बार।"
+  primarySlogan: "अधिवक्ता एकता और सम्मान के लिए, कृपया श्री अरुण कुमार त्रिपाठी को सदस्य पद पर अपना बहुमूल्य समर्थन प्रदान करें।",
+  secondarySlogan: "आपका प्रथम वरीयता का मत, सम्मान और प्रगति की विजय बने।"
 };
 
 export const translations = {
