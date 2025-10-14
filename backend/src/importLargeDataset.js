@@ -20,11 +20,14 @@ const pool = new Pool({
 // Path to the final corrected CSV file
 // Try multiple possible paths for different deployment environments
 const possiblePaths = [
-  // Production paths
+  // Production paths - try sample first, then full dataset
+  '/opt/render/project/sample_voter_data.csv',
   '/opt/render/project/advocates_voter_list_corrected.csv',
+  path.join(process.cwd(), '../../sample_voter_data.csv'),
   path.join(process.cwd(), '../../advocates_voter_list_corrected.csv'),
   path.join(process.cwd(), '../../../advocates_voter_list_corrected.csv'),
   // Local development path
+  path.join(__dirname, '../../../sample_voter_data.csv'),
   path.join(__dirname, '../../../advocates_voter_list_corrected.csv')
 ];
 
