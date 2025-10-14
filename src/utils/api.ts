@@ -40,6 +40,9 @@ export async function searchByEnrollment(
   params: SearchByEnrollmentParams
 ): Promise<SearchResponse> {
   try {
+    console.log('API call to:', `${API_BASE_URL}/search/enrollment`);
+    console.log('API params:', params);
+    
     const response = await fetch(`${API_BASE_URL}/search/enrollment`, {
       method: 'POST',
       headers: {
@@ -48,11 +51,15 @@ export async function searchByEnrollment(
       body: JSON.stringify(params),
     });
 
+    console.log('API response status:', response.status);
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('API response data:', data);
+    return data;
   } catch (error) {
     console.error('Error searching by enrollment:', error);
     throw error;
@@ -144,7 +151,13 @@ export async function getBilingualDistricts(): Promise<{
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    
+    // Map the backend response to frontend format
+    return {
+      total: data.total,
+      districts: data.bilingualMappings || []
+    };
   } catch (error) {
     console.error('Error fetching bilingual districts:', error);
     throw error;

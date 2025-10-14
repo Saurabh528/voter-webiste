@@ -18,6 +18,7 @@ interface VoterResult {
   copNumber: string;
   address: string;
   district: string;
+  noCopNumber?: boolean;
 }
 
 interface VoterSearchSectionProps {
@@ -66,6 +67,7 @@ export function VoterSearchSection({
   const [phoneNumber, setPhoneNumber] = useState("");
   const [searchResult, setSearchResult] = useState<VoterResult | null | "not-found">(null);
   const [allResults, setAllResults] = useState<VoterResult[]>([]); // Store all matching results
+  const [totalResults, setTotalResults] = useState<number>(0); // Store total results count from backend
   const [isSearching, setIsSearching] = useState(false);
   const [showPhonePrompt, setShowPhonePrompt] = useState(false);
   const [tempPhone, setTempPhone] = useState("");
@@ -82,7 +84,9 @@ export function VoterSearchSection({
   useEffect(() => {
     async function loadDistricts() {
       try {
+        console.log('Loading bilingual districts...');
         const response = await getBilingualDistricts();
+        console.log('Bilingual districts response:', response);
         setBilingualDistricts(response.districts);
         setDistrictsLoaded(true);
       } catch (error) {
@@ -117,11 +121,22 @@ export function VoterSearchSection({
 
     try {
       let response;
-      if (pendingSearchType === "enrollment") {
+      
+      // Test missing COP number functionality
+      if (pendingSearchType === "enrollment" && enrollmentNumber.trim().toUpperCase() === "TEST") {
+        const testResponse = await fetch('http://localhost:3001/api/test/missing-cop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        response = await testResponse.json();
+      } else if (pendingSearchType === "enrollment") {
+        console.log('Searching enrollment:', enrollmentNumber.trim());
         response = await searchByEnrollment({
           enrollmentNumber: enrollmentNumber.trim(),
           phoneNumber: tempPhone.trim() || undefined
         });
+        console.log('Enrollment search response:', response);
       } else {
         response = await searchByNameDistrict({
           name: name.trim(),
@@ -130,15 +145,22 @@ export function VoterSearchSection({
         });
       }
 
-      if (response.found && response.data) {
-        // Store first result for backward compatibility
-        setSearchResult({
-          name: response.data.name,
-          enrollmentNumber: response.data.enrollmentNumber,
-          copNumber: response.data.copNumber?.toString() || '',
-          address: response.data.address,
-          district: response.data.district
-        });
+      if (response.found && (response.data || (response as any).allResults)) {
+        // Store first result for backward compatibility (use first allResults item if data is missing)
+        const firstResult = response.data || (response as any).allResults?.[0];
+        if (firstResult) {
+          setSearchResult({
+            name: firstResult.name,
+            enrollmentNumber: firstResult.enrollmentNumber,
+            copNumber: firstResult.copNumber?.toString() || '',
+            address: firstResult.address,
+            district: firstResult.district,
+            noCopNumber: response.noCopNumber || false
+          });
+        }
+        
+        // Store total results count from backend
+        setTotalResults((response as any).totalResults || 0);
         
         // Store all results if available
         if ((response as any).allResults) {
@@ -147,7 +169,8 @@ export function VoterSearchSection({
             enrollmentNumber: r.enrollmentNumber,
             copNumber: r.copNumber?.toString() || '',
             address: r.address,
-            district: r.district
+            district: r.district,
+            noCopNumber: !r.copNumber || r.copNumber === null || r.copNumber === '' || response.noCopNumber || false
           }));
           setAllResults(results);
         } else {
@@ -156,7 +179,8 @@ export function VoterSearchSection({
             enrollmentNumber: response.data.enrollmentNumber,
             copNumber: response.data.copNumber?.toString() || '',
             address: response.data.address,
-            district: response.data.district
+            district: response.data.district,
+            noCopNumber: response.noCopNumber || false
           }]);
         }
       } else {
@@ -183,7 +207,16 @@ export function VoterSearchSection({
     
     try {
       let response;
-      if (pendingSearchType === "enrollment") {
+      
+      // Test missing COP number functionality
+      if (pendingSearchType === "enrollment" && enrollmentNumber.trim().toUpperCase() === "TEST") {
+        const testResponse = await fetch('http://localhost:3001/api/test/missing-cop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        response = await testResponse.json();
+      } else if (pendingSearchType === "enrollment") {
         response = await searchByEnrollment({
           enrollmentNumber: enrollmentNumber.trim()
         });
@@ -194,14 +227,22 @@ export function VoterSearchSection({
         });
       }
 
-      if (response.found && response.data) {
-        setSearchResult({
-          name: response.data.name,
-          enrollmentNumber: response.data.enrollmentNumber,
-          copNumber: response.data.copNumber?.toString() || '',
-          address: response.data.address,
-          district: response.data.district
-        });
+      if (response.found && (response.data || (response as any).allResults)) {
+        // Store first result for backward compatibility (use first allResults item if data is missing)
+        const firstResult = response.data || (response as any).allResults?.[0];
+        if (firstResult) {
+          setSearchResult({
+            name: firstResult.name,
+            enrollmentNumber: firstResult.enrollmentNumber,
+            copNumber: firstResult.copNumber?.toString() || '',
+            address: firstResult.address,
+            district: firstResult.district,
+            noCopNumber: (response as any).noCopNumber || false
+          });
+        }
+        
+        // Store total results count from backend
+        setTotalResults((response as any).totalResults || 0);
         
         // Store all results if available
         if ((response as any).allResults) {
@@ -210,7 +251,8 @@ export function VoterSearchSection({
             enrollmentNumber: r.enrollmentNumber,
             copNumber: r.copNumber?.toString() || '',
             address: r.address,
-            district: r.district
+            district: r.district,
+            noCopNumber: !r.copNumber || r.copNumber === null || r.copNumber === '' || (response as any).noCopNumber || false
           }));
           setAllResults(results);
         } else {
@@ -219,7 +261,8 @@ export function VoterSearchSection({
             enrollmentNumber: response.data.enrollmentNumber,
             copNumber: response.data.copNumber?.toString() || '',
             address: response.data.address,
-            district: response.data.district
+            district: response.data.district,
+            noCopNumber: (response as any).noCopNumber || false
           }]);
         }
       } else {
@@ -250,7 +293,7 @@ export function VoterSearchSection({
   };
 
   const callContact = () => {
-    window.location.href = "tel:+919415300191";
+    window.location.href = "tel:+919721777720";
   };
 
   const handleReset = () => {
@@ -259,6 +302,7 @@ export function VoterSearchSection({
     setDistrict("");
     setSearchResult(null);
     setAllResults([]);
+    setTotalResults(0);
     setTempPhone("");
     setPhoneNumber("");
   };
@@ -361,9 +405,9 @@ export function VoterSearchSection({
                           ))
                         ) : (
                           upDistricts.map((dist) => (
-                            <SelectItem key={dist} value={dist} className="text-[18px] py-3">
-                              {dist}
-                            </SelectItem>
+                          <SelectItem key={dist} value={dist} className="text-[18px] py-3">
+                            {dist}
+                          </SelectItem>
                           ))
                         )}
                       </SelectContent>
@@ -412,11 +456,11 @@ export function VoterSearchSection({
                       </p>
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                         <a 
-                          href="tel:+919415300191"
+                          href="tel:+919721777720"
                           className="text-[28px] sm:text-[32px] text-[#0A2647] hover:text-[#d32f2f] transition-colors flex items-center gap-3"
                         >
                           <Phone className="w-8 h-8" />
-                          {rt.contactNumber}
+                          +91 97217 77720
                         </a>
                         <Button
                           onClick={callContact}
@@ -432,37 +476,81 @@ export function VoterSearchSection({
                 </div>
               </Card>
             ) : (
-              <div className="space-y-6">
-                {/* Header */}
-                <Card className="p-6 sm:p-8 bg-[#e8f5e9] border-4 border-[#388e3c]">
-                  <div className="text-center space-y-4">
-                    <CheckCircle2 className="w-20 h-20 text-[#388e3c] mx-auto" />
-                    <div className="bg-white p-4 sm:p-6 rounded-lg border-2 border-[#388e3c]">
-                      <h3 className="text-[24px] sm:text-[28px] text-[#2e7d32] leading-relaxed">
-                        ✔️ {rt.registered}
+                <div className="space-y-6">
+                {/* Total Results Count */}
+                <Card className="p-4 sm:p-6 bg-[#f5f5f5] border-2 border-[#0A2647]/20">
+                  <div className="text-center">
+                    <h3 className="text-[20px] sm:text-[24px] text-[#0A2647] font-semibold">
+                      📊 Total Results: {totalResults}
                       </h3>
-                      {allResults.length > 1 && (
-                        <p className="text-[18px] text-[#2e7d32] mt-2">
-                          {allResults.length} मैच मिले / {allResults.length} Matches Found
-                        </p>
-                      )}
-                    </div>
+                    {allResults.some(r => r.noCopNumber) && (
+                      <p className="text-[16px] text-[#d32f2f] mt-2">
+                        ⚠️ Some voters found without COP numbers
+                      </p>
+                    )}
                   </div>
                 </Card>
 
                 {/* Display ALL Results */}
                 {allResults.map((result, index) => (
-                  <Card key={index} className="p-6 sm:p-8 bg-white border-2 border-[#388e3c] hover:shadow-lg transition-shadow">
-                    <div className="space-y-4">
-                      {/* Result Number Header */}
-                      <div className="flex items-center gap-3 pb-3 border-b-2 border-[#388e3c]/20">
-                        <div className="w-10 h-10 rounded-full bg-[#388e3c] flex items-center justify-center">
-                          <span className="text-white text-[20px]">✅</span>
+                  <Card key={index} className={`p-6 sm:p-8 ${result.noCopNumber ? 'bg-[#ffebee] border-4 border-[#d32f2f]' : 'bg-white border-2 border-[#388e3c]'} hover:shadow-lg transition-shadow`}>
+                    <div className="space-y-6">
+                      {/* Not Found Header for Missing COP */}
+                      {result.noCopNumber && (
+                        <div className="text-center space-y-6">
+                          <XCircle className="w-24 h-24 text-[#d32f2f] mx-auto" />
+                          <div className="space-y-4">
+                            <h3 className="text-[32px] sm:text-[36px] text-[#c62828]">
+                              ❌ {rt.notRegistered}
+                            </h3>
+                            <div className="bg-white p-6 rounded-lg border-2 border-[#d32f2f] space-y-3">
+                              <p className="text-[20px] sm:text-[24px] text-[#0A2647] leading-relaxed">
+                                {rt.notRegisteredContact}
+                              </p>
+                              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                                <a 
+                                  href="tel:+919721777720"
+                                  className="text-[28px] sm:text-[32px] text-[#0A2647] hover:text-[#d32f2f] transition-colors flex items-center gap-3"
+                                >
+                                  <Phone className="w-8 h-8" />
+                                  +91 97217 77720
+                                </a>
+                                <Button
+                                  onClick={callContact}
+                                  size="lg"
+                                  className="text-[18px] py-6 px-8 bg-[#0A2647] hover:bg-[#144272] text-white"
+                                >
+                                  <Phone className="w-5 h-5 mr-2" />
+                                  कॉल करें
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <h4 className="text-[22px] text-[#388e3c] font-semibold">
-                          {allResults.length > 1 ? `Result ${index + 1} of ${allResults.length}` : 'Voter Details'}
-                        </h4>
-                      </div>
+                      )}
+                      
+                      {/* Voter Details Section */}
+                      <div className={`space-y-4 ${result.noCopNumber ? 'mt-6' : ''}`}>
+                        {/* Result Number Header - Only show for valid results */}
+                        {!result.noCopNumber && (
+                          <div className="flex items-center gap-3 pb-3 border-b-2 border-[#388e3c]/20">
+                            <div className="w-10 h-10 rounded-full bg-[#388e3c] flex items-center justify-center">
+                              <span className="text-white text-[20px]">✅</span>
+                            </div>
+                            <h4 className="text-[22px] text-[#388e3c] font-semibold">
+                              {allResults.length > 1 ? `Result ${index + 1} of ${allResults.length}` : 'Voter Details'}
+                            </h4>
+                          </div>
+                        )}
+                        
+                        {/* Voter Information Header for Missing COP */}
+                        {result.noCopNumber && (
+                          <div className="text-center">
+                            <h4 className="text-[24px] text-[#d32f2f] font-semibold mb-4">
+                              📋 Voter Information Found:
+                            </h4>
+                          </div>
+                        )}
 
                       {/* Name */}
                       <div className="space-y-2">
@@ -471,24 +559,32 @@ export function VoterSearchSection({
                       </div>
 
                       {/* Enrollment Number */}
-                      <div className="space-y-2">
+                    <div className="space-y-2">
                         <p className="text-[16px] text-[#0A2647]/70 font-medium">{rt.enrollmentNumber}:</p>
                         <p className="text-[22px] text-[#0A2647]">{result.enrollmentNumber}</p>
-                      </div>
+                    </div>
 
                       {/* COP Number */}
-                      <div className="space-y-2">
+                    <div className="space-y-2">
                         <p className="text-[16px] text-[#0A2647]/70 font-medium">{rt.copNumber}:</p>
-                        <p className="text-[22px] text-[#0A2647]">{result.copNumber}</p>
-                      </div>
+                        {result.noCopNumber ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[22px] text-[#d32f2f] font-bold">✗</span>
+                            <p className="text-[22px] text-[#d32f2f] font-medium">Not Available</p>
+                          </div>
+                        ) : (
+                          <p className="text-[22px] text-[#0A2647]">{result.copNumber}</p>
+                        )}
+                    </div>
 
                       {/* Address */}
-                      <div className="space-y-2">
+                    <div className="space-y-2">
                         <p className="text-[16px] text-[#0A2647]/70 font-medium">{rt.address}:</p>
                         <p className="text-[20px] text-[#0A2647]">{result.address}</p>
-                      </div>
                     </div>
-                  </Card>
+                  </div>
+                </div>
+              </Card>
                 ))}
               </div>
             )}

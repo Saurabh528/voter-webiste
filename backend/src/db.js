@@ -30,40 +30,69 @@ export async function initializeSchema() {
   try {
     console.log('Initializing database schema...');
     
-    // Create voters table
+    // Check if voters table exists and has data
+    const tableExists = await client.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'voters'
+      );
+    `);
+    
+    if (tableExists.rows[0].exists) {
+      const countResult = await client.query('SELECT COUNT(*) FROM voters');
+      const count = parseInt(countResult.rows[0].count);
+      
+      if (count > 0) {
+        console.log(`✅ Voters table exists with ${count} records - skipping schema recreation`);
+        return;
+      }
+    }
+    
+    // Drop existing voters table only if it's empty or doesn't exist
+    await client.query('DROP TABLE IF EXISTS voters CASCADE');
+    
+    // Create voters table with new schema matching the final CSV
     await client.query(`
-      CREATE TABLE IF NOT EXISTS voters (
+      CREATE TABLE voters (
         id SERIAL PRIMARY KEY,
-        original_id VARCHAR(50),
-        enrollment_no VARCHAR(100) UNIQUE NOT NULL,
-        enrollment_date VARCHAR(50),
-        cop_no VARCHAR(50),
-        name VARCHAR(255) NOT NULL,
-        name_normalized VARCHAR(255),
-        father_name VARCHAR(255),
-        address TEXT,
         district VARCHAR(100),
-        voter_district VARCHAR(100),
-        practice_bar TEXT,
-        normal_place_of_practice TEXT,
-        date_of_birth VARCHAR(50),
-        mobile VARCHAR(20),
-        member_name VARCHAR(100),
-        remark VARCHAR(100),
-        form_status VARCHAR(50),
-        source_file VARCHAR(255),
+        enrolment_no VARCHAR(100) NOT NULL,
+        reg_year DECIMAL(5,1),
+        name VARCHAR(255) NOT NULL,
+        father_name VARCHAR(255),
+        dob DATE,
+        address TEXT,
+        age DECIMAL(5,1),
+        community VARCHAR(100),
+        phone VARCHAR(20),
+        residence_no VARCHAR(50),
+        office_no VARCHAR(50),
+        office_address TEXT,
+        chamber_address TEXT,
+        email VARCHAR(255),
+        cop_no VARCHAR(50),
+        pincode VARCHAR(10),
+        sub_district VARCHAR(100),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
     
     // Create indexes for fast searching
     await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_enrollment_no ON voters(enrollment_no);
-      CREATE INDEX IF NOT EXISTS idx_name ON voters(name);
-      CREATE INDEX IF NOT EXISTS idx_name_normalized ON voters(name_normalized);
-      CREATE INDEX IF NOT EXISTS idx_district ON voters(district);
-      CREATE INDEX IF NOT EXISTS idx_cop_no ON voters(cop_no);
-      CREATE INDEX IF NOT EXISTS idx_mobile ON voters(mobile);
+      CREATE INDEX idx_enrolment_no ON voters(enrolment_no);
+      CREATE INDEX idx_name ON voters(name);
+      CREATE INDEX idx_district ON voters(district);
+      CREATE INDEX idx_cop_no ON voters(cop_no);
+      CREATE INDEX idx_phone ON voters(phone);
+      CREATE INDEX idx_sub_district ON voters(sub_district);
+    `);
+    
+    // Create fuzzy search indexes for partial matching
+    await client.query(`
+      CREATE INDEX idx_enrolment_fuzzy ON voters USING gin(to_tsvector('english', enrolment_no));
+      CREATE INDEX idx_name_fuzzy ON voters USING gin(to_tsvector('english', name));
+      CREATE INDEX idx_district_fuzzy ON voters USING gin(to_tsvector('english', district));
     `);
     
     // Create search_logs table

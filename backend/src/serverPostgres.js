@@ -9,6 +9,12 @@ import {
   getAllSpellingVariations
 } from './bilingualHelper.js';
 import { validateIndianMobileNumber, cleanPhoneInput, isInputSafe } from './phoneValidation.js';
+import { 
+  fuzzySearchEnrollment, 
+  fuzzySearchNameDistrict, 
+  getAllDistricts, 
+  logSearch 
+} from './enhancedSearch.js';
 
 dotenv.config();
 
@@ -58,13 +64,45 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Get bilingual districts list
-app.get('/api/districts', (req, res) => {
+// Test endpoint to demonstrate missing COP number functionality
+app.post('/api/test/missing-cop', async (req, res) => {
   try {
-    const districts = getBilingualDistricts();
+    // Return a mock voter without COP number to test the UI
     res.json({
-      total: districts.length,
-      districts: districts
+      found: true,
+      noCopNumber: true,
+      data: {
+        name: "TEST VOTER WITHOUT COP",
+        enrollmentNumber: "UP99999/99",
+        copNumber: null,
+        address: "Test Address, Test City, Test District",
+        district: "LUCKNOW",
+        fatherName: "Test Father",
+        phone: null,
+        regYear: "99",
+        age: "30",
+        community: "Other"
+      }
+    });
+  } catch (error) {
+    console.error('Error in test endpoint:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get bilingual districts list
+app.get('/api/districts', async (req, res) => {
+  try {
+    // Get districts from the actual database
+    const dbDistricts = await getAllDistricts();
+    
+    // Also get bilingual mappings
+    const bilingualDistricts = getBilingualDistricts();
+    
+    res.json({
+      total: dbDistricts.length,
+      districts: dbDistricts,
+      bilingualMappings: bilingualDistricts
     });
   } catch (error) {
     console.error('Error getting districts:', error);
@@ -72,10 +110,8 @@ app.get('/api/districts', (req, res) => {
   }
 });
 
-// Search by enrollment number
+// Search by enrollment number with fuzzy matching
 app.post('/api/search/enrollment', async (req, res) => {
-  const client = await pool.connect();
-  
   try {
     const { enrollmentNumber, phoneNumber } = req.body;
     
@@ -85,36 +121,60 @@ app.post('/api/search/enrollment', async (req, res) => {
       });
     }
 
-    // Search in database using SQL
-    const result = await client.query(`
-      SELECT * FROM voters 
-      WHERE UPPER(enrollment_no) = UPPER($1)
-      LIMIT 1
-    `, [enrollmentNumber.trim()]);
+    // Use enhanced fuzzy search
+    const results = await fuzzySearchEnrollment(enrollmentNumber.trim(), 100);
+    
+    // Log the search
+    await logSearch('enrollment', { enrollmentNumber }, results.length > 0, results.length);
 
-    const found = result.rows.length > 0;
-
-    // Log search to database
-    await client.query(`
-      INSERT INTO search_logs (
-        search_type, enrollment_number, phone_number, result_found, results_count
-      ) VALUES ($1, $2, $3, $4, $5)
-    `, ['enrollment', enrollmentNumber.trim(), phoneNumber || null, found, result.rows.length]);
+    const found = results.length > 0;
 
     if (found) {
-      const voter = result.rows[0];
-      res.json({
-        found: true,
-        data: {
-          name: voter.name,
-          enrollmentNumber: voter.enrollment_no,
-          copNumber: voter.cop_no,
-          address: voter.address,
-          district: voter.district,
-          fatherName: voter.father_name,
-          mobile: voter.mobile
+      // Return ALL results (both with and without COP numbers)
+      // Let the frontend handle the styling based on COP number availability
+      if (results.length > 0) {
+        if (results.length > 1) {
+          res.json({
+            found: true,
+            multipleResults: true,
+            totalResults: results.length,
+            allResults: results.map(voter => ({
+              name: voter.name,
+              enrollmentNumber: voter.enrolment_no,
+              copNumber: voter.cop_no, // This will be null/empty for voters without COP numbers
+              address: voter.address,
+              district: voter.district,
+              fatherName: voter.father_name,
+              phone: voter.phone,
+              regYear: voter.reg_year,
+              age: voter.age,
+              community: voter.community
+            }))
+          });
+        } else {
+          const voter = results[0];
+          res.json({
+            found: true,
+            data: {
+              name: voter.name,
+              enrollmentNumber: voter.enrolment_no,
+              copNumber: voter.cop_no, // This will be null/empty for voters without COP numbers
+              address: voter.address,
+              district: voter.district,
+              fatherName: voter.father_name,
+              phone: voter.phone,
+              regYear: voter.reg_year,
+              age: voter.age,
+              community: voter.community
+            }
+          });
         }
-      });
+      } else {
+        res.json({
+          found: false,
+          message: 'No voter found with this enrollment number'
+        });
+      }
     } else {
       res.json({
         found: false,
@@ -123,9 +183,11 @@ app.post('/api/search/enrollment', async (req, res) => {
     }
   } catch (error) {
     console.error('Error in enrollment search:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  } finally {
-    client.release();
+    if (error.message.includes('Invalid input detected')) {
+      res.status(400).json({ error: 'Invalid input detected' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 });
 
@@ -169,7 +231,7 @@ app.post('/api/search/name-district', async (req, res) => {
     if (searchWords.length > 0) {
       const nameConditions = searchWords.map((word, index) => {
         params.push(`%${word.toLowerCase()}%`);
-        return `(LOWER(name) LIKE $${params.length} OR LOWER(name_normalized) LIKE $${params.length})`;
+        return `LOWER(name) LIKE $${params.length}`;
       });
       
       query += ` AND (${nameConditions.join(' AND ')})`;
@@ -211,7 +273,7 @@ app.post('/api/search/name-district', async (req, res) => {
         found: true,
         data: allMatches[0],
         allResults: allMatches,
-        totalMatches: result.rows.length
+        totalResults: result.rows.length
       });
     } else {
       res.json({
