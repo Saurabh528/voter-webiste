@@ -482,12 +482,37 @@ export function VoterSearchSection({
                   <div className="text-center">
                     <h3 className="text-[20px] sm:text-[24px] text-[#0A2647] font-semibold">
                       📊 Total Results: {totalResults}
-                      </h3>
+                    </h3>
                     {allResults.some(r => r.noCopNumber) && (
                       <p className="text-[16px] text-[#d32f2f] mt-2">
                         ⚠️ Some voters found without COP numbers
                       </p>
                     )}
+                  </div>
+                </Card>
+
+                {/* Campaign Message for Multiple Results */}
+                <Card className="p-6 sm:p-8 bg-[#fff3e0] border-4 border-[#ff9800]">
+                  <div className="text-center space-y-4">
+                    <h3 className="text-[20px] sm:text-[24px] text-[#e65100] font-semibold leading-relaxed">
+                      इस लड़ाई में, अपना बहुमूल्य वोट देकर श्री अरुण कुमार त्रिपाठी को प्रथम वरीयता (1) पर विजयी बनाने की कृपा करें।
+                      </h3>
+                    
+                    <div className="bg-white p-4 rounded-lg border-2 border-[#ff9800]">
+                      <h4 className="text-[18px] font-semibold text-[#0A2647] mb-3">
+                        COP नंबर की जांच करें:
+                      </h4>
+                      <div className="space-y-2 text-[16px]">
+                        <div className="flex items-center justify-center gap-3">
+                          <span className="text-[#388e3c] text-[20px]">✅</span>
+                          <span className="text-[#0A2647]">अगर COP नंबर मौजूद है, तो</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-3">
+                          <span className="text-[#d32f2f] text-[20px]">❌</span>
+                          <span className="text-[#0A2647]">कृपया COP नंबर जांचें।</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </Card>
 
