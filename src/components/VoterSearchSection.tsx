@@ -346,7 +346,7 @@ export function VoterSearchSection({
               <Card className="p-6 sm:p-8 border-2 border-[#0A2647]/20 shadow-lg">
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <Label htmlFor="enrollment" className="text-[20px] text-[#0A2647]">
+                    <Label htmlFor="enrollment" className="text-[22px] sm:text-[24px] text-[#0A2647] font-bold">
                       {st.enrollmentLabel}
                     </Label>
                     <Input
@@ -360,7 +360,12 @@ export function VoterSearchSection({
                         }
                       }}
                       onKeyDown={(e) => e.key === "Enter" && initiateSearch("enrollment")}
-                      className="text-[20px] py-7 px-4 border-2 border-[#0A2647]/20 focus:border-[#FFD700]"
+                      className="py-8 px-5 border-2 border-[#0A2647]/20 focus:border-[#FFD700] focus:border-4 rounded-lg"
+                      style={{
+                        fontSize: '26px',
+                        color: '#0A2647',
+                        fontWeight: '700'
+                      }}
                     />
                   </div>
 
@@ -369,7 +374,7 @@ export function VoterSearchSection({
                       onClick={() => initiateSearch("enrollment")}
                       disabled={!enrollmentNumber.trim() || isSearching}
                       size="lg"
-                      className="flex-1 text-[22px] py-8 gap-3 bg-[#0A2647] hover:bg-[#144272] text-white"
+                      className="flex-1 text-[22px] py-8 gap-3 bg-[#0A2647] hover:bg-[#144272] text-white font-bold"
                     >
                       {isSearching ? st.searching : st.searchButton}
                     </Button>
@@ -391,7 +396,7 @@ export function VoterSearchSection({
               <Card className="p-6 sm:p-8 border-2 border-[#0A2647]/20 shadow-lg">
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <Label htmlFor="name" className="text-[20px] text-[#0A2647]">
+                    <Label htmlFor="name" className="text-[22px] sm:text-[24px] text-[#0A2647] font-bold">
                       {st.nameLabel}
                     </Label>
                     <Input
@@ -404,12 +409,17 @@ export function VoterSearchSection({
                           setName(sanitizeNameInput(e.target.value));
                         }
                       }}
-                      className="text-[20px] py-7 px-4 border-2 border-[#0A2647]/20 focus:border-[#FFD700]"
+                      className="py-8 px-5 border-2 border-[#0A2647]/20 focus:border-[#FFD700] focus:border-4 rounded-lg"
+                      style={{
+                        fontSize: '26px',
+                        color: '#0A2647',
+                        fontWeight: '700'
+                      }}
                     />
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="district" className="text-[20px] text-[#0A2647]">
+                    <Label htmlFor="district" className="text-[22px] sm:text-[24px] text-[#0A2647] font-bold">
                       {st.districtLabel}
                     </Label>
 
@@ -417,12 +427,17 @@ export function VoterSearchSection({
                     <div className="relative">
                       <div
                         onClick={() => setIsDistrictDropdownOpen(!isDistrictDropdownOpen)}
-                        className="text-[20px] py-7 px-4 border-2 border-[#0A2647]/20 rounded-md cursor-pointer bg-white hover:border-[#FFD700] transition-colors flex items-center justify-between"
+                        className="py-8 px-5 border-2 border-[#0A2647]/20 rounded-lg cursor-pointer bg-white hover:border-[#FFD700] transition-colors flex items-center justify-between"
+                        style={{
+                          fontSize: '26px',
+                          color: district ? '#0A2647' : '#9CA3AF',
+                          fontWeight: '700'
+                        }}
                       >
-                        <span className={district ? "text-[#0A2647]" : "text-gray-400"}>
+                        <span>
                           {district ? (bilingualDistricts.find(d => d.value === district)?.display || district) : st.districtPlaceholder}
                         </span>
-                        <span className="text-gray-400">▼</span>
+                        <span className="text-gray-400 text-[24px]">▼</span>
                       </div>
 
                       {isDistrictDropdownOpen && (
@@ -434,23 +449,23 @@ export function VoterSearchSection({
                           />
 
                           {/* Dropdown List */}
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-xl z-50">
+                          <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-300 rounded-lg shadow-2xl z-50">
                             {/* Search Input */}
-                            <div className="p-3 border-b border-gray-200 bg-gray-50">
+                            <div className="p-4 border-b-2 border-gray-200 bg-gray-50">
                               <Input
                                 type="text"
                                 placeholder="Type to search..."
                                 value={districtSearchTerm}
                                 onChange={(e) => setDistrictSearchTerm(e.target.value)}
-                                className="text-[16px] py-2 border-gray-300"
+                                className="text-[20px] text-[#0A2647] font-semibold py-3 border-2 border-gray-300"
                                 autoFocus
                               />
                             </div>
 
-                            {/* Scrollable List - Shows only 6 items, scroll for more */}
+                            {/* Scrollable List - Shows only 4 items, scroll for more */}
                             <div
                               className="overflow-y-scroll overflow-x-hidden"
-                              style={{ maxHeight: '270px' }}
+                              style={{ maxHeight: '240px' }}
                             >
                               {(districtsLoaded && bilingualDistricts.length > 0
                                 ? bilingualDistricts
@@ -475,9 +490,9 @@ export function VoterSearchSection({
                                       setDistrictSearchTerm("");
                                       setIsDistrictDropdownOpen(false);
                                     }}
-                                    className="px-4 py-3.5 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
+                                    className="px-5 py-4 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
                                   >
-                                    <span className="text-[17px] text-gray-800">
+                                    <span className="text-[20px] text-[#0A2647] font-medium">
                                       {dist.english} <span className="text-gray-600">({dist.hindi})</span>
                                     </span>
                                   </div>
@@ -515,7 +530,7 @@ export function VoterSearchSection({
                       onClick={() => initiateSearch("name-district")}
                       disabled={!name.trim() || !district || isSearching}
                       size="lg"
-                      className="flex-1 text-[22px] py-8 gap-3 bg-[#0A2647] hover:bg-[#144272] text-white"
+                      className="flex-1 text-[22px] py-8 gap-3 bg-[#0A2647] hover:bg-[#144272] text-white font-bold"
                     >
                       {isSearching ? st.searching : st.searchButton}
                     </Button>
@@ -523,10 +538,11 @@ export function VoterSearchSection({
                       onClick={() => {
                         setName("");
                         setDistrict("");
+                        setDistrictSearchTerm("");
                       }}
                       variant="outline"
                       size="lg"
-                      className="text-[20px] py-8 px-8 border-2 border-[#0A2647]/20"
+                      className="text-[20px] py-8 px-8 border-2 border-[#0A2647]/20 font-semibold"
                     >
                       {st.clearButton}
                     </Button>
