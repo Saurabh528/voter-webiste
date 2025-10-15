@@ -105,6 +105,12 @@ function sanitizeDate(dateStr) {
 /* ---------- MAIN IMPORT FUNCTION ---------- */
 async function importLargeDataset() {
   console.log('🚀 Starting massive dataset import (streamed COPY)...');
+
+  // Import and initialize schema first
+  const { initializeSchema } = await import('./db.js');
+  await initializeSchema();
+  console.log('✅ Schema initialized.');
+
   console.log('🗑️  Clearing existing voter data...');
 
   const client = await pool.connect();
