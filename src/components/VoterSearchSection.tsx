@@ -83,6 +83,8 @@ export function VoterSearchSection({
   }>>([]);
   const [districtsLoaded, setDistrictsLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<"enrollment" | "name">("enrollment");
+  const [currentPage, setCurrentPage] = useState(1);
+  const resultsPerPage = 5;
 
   // Fetch bilingual districts on mount
   useEffect(() => {
@@ -311,6 +313,7 @@ export function VoterSearchSection({
     setTotalResults(0);
     setTempPhone("");
     setPhoneNumber("");
+    setCurrentPage(1);
   };
 
   return (
@@ -589,47 +592,103 @@ export function VoterSearchSection({
               </Card>
             ) : (
                 <div className="space-y-6">
-                {/* Total Results Count */}
-                <Card className="p-4 sm:p-6 bg-[#f5f5f5] border-2 border-[#0A2647]/20">
-                  <div className="text-center">
-                    <h3 className="text-[20px] sm:text-[24px] text-[#0A2647] font-semibold">
-                      📊 Total Results: {totalResults}
-                    </h3>
-                    {allResults.some(r => r.noCopNumber) && (
-                      <p className="text-[16px] text-[#d32f2f] mt-2">
-                        ⚠️ Some voters found without COP numbers
-                      </p>
-                    )}
-                  </div>
-                </Card>
-
-                {/* Campaign Message for Multiple Results */}
-                <Card className="p-6 sm:p-8 bg-[#fff3e0] border-4 border-[#ff9800]">
-                  <div className="text-center space-y-4">
-                    <h3 className="text-[20px] sm:text-[24px] text-[#e65100] font-semibold leading-relaxed">
-                      इस लड़ाई में, अपना बहुमूल्य वोट देकर श्री अरुण कुमार त्रिपाठी को प्रथम वरीयता (1) पर विजयी बनाने की कृपा करें।
+                {/* Single Result with COP - Green Success Message */}
+                {allResults.length === 1 && !allResults[0].noCopNumber && (
+                  <Card className="p-6 sm:p-8 bg-[#e8f5e9] border-4 border-[#388e3c]">
+                    <div className="text-center space-y-4">
+                      <div className="flex justify-center">
+                        <CheckCircle2 className="w-20 h-20 text-[#388e3c]" />
+                      </div>
+                      <h3 className="text-[24px] sm:text-[28px] text-[#2e7d32] font-bold leading-relaxed">
+                        ✔️ आप एक पंजीकृत मतदाता हैं!
                       </h3>
-                    
-                    <div className="bg-white p-4 rounded-lg border-2 border-[#ff9800]">
-                      <h4 className="text-[18px] font-semibold text-[#0A2647] mb-3">
-                        COP नंबर की जांच करें:
-                      </h4>
-                      <div className="space-y-2 text-[16px]">
-                        <div className="flex items-center justify-center gap-3">
-                          <span className="text-[#388e3c] text-[20px]">✅</span>
-                          <span className="text-[#0A2647]">अगर COP नंबर मौजूद है, तो</span>
-                        </div>
-                        <div className="flex items-center justify-center gap-3">
-                          <span className="text-[#d32f2f] text-[20px]">❌</span>
-                          <span className="text-[#0A2647]">कृपया COP नंबर जांचें।</span>
+                      <p className="text-[20px] sm:text-[24px] text-[#1b5e20] leading-relaxed font-semibold">
+                        अब वकीलों के हक़ और सम्मान की इस लड़ाई में, अपना बहुमूल्य वोट देकर श्री अरुण कुमार त्रिपाठी को प्रथम वरीयता (1) पर विजयी बनाने की कृपा करें।
+                      </p>
+                    </div>
+                  </Card>
+                )}
+
+                {/* Single Result without COP - Red Warning */}
+                {allResults.length === 1 && allResults[0].noCopNumber && (
+                  <Card className="p-6 sm:p-8 bg-[#ffebee] border-4 border-[#d32f2f]">
+                    <div className="text-center space-y-6">
+                      <XCircle className="w-24 h-24 text-[#d32f2f] mx-auto" />
+                      <div className="space-y-4">
+                        <h3 className="text-[32px] sm:text-[36px] text-[#c62828] font-bold">
+                          ❌ {rt.notRegistered}
+                        </h3>
+                        <div className="bg-white p-6 rounded-lg border-2 border-[#d32f2f] space-y-3">
+                          <p className="text-[20px] sm:text-[24px] text-[#0A2647] leading-relaxed">
+                            {rt.notRegisteredContact}
+                          </p>
+                          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                            <a
+                              href="tel:+919721777720"
+                              className="text-[28px] sm:text-[32px] text-[#0A2647] hover:text-[#d32f2f] transition-colors flex items-center gap-3"
+                            >
+                              <Phone className="w-8 h-8" />
+                              +91 97217 77720
+                            </a>
+                            <Button
+                              onClick={callContact}
+                              size="lg"
+                              className="text-[18px] py-6 px-8 bg-[#0A2647] hover:bg-[#144272] text-white"
+                            >
+                              <Phone className="w-5 h-5 mr-2" />
+                              {rt.callButton}
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                )}
 
-                {/* Display ALL Results */}
-                {allResults.map((result, index) => (
+                {/* Multiple Results - Show Total and Campaign Message */}
+                {allResults.length > 1 && (
+                  <>
+                    <Card className="p-4 sm:p-6 bg-[#f5f5f5] border-2 border-[#0A2647]/20">
+                      <div className="text-center">
+                        <h3 className="text-[20px] sm:text-[24px] text-[#0A2647] font-semibold">
+                          📊 Total Results: {totalResults}
+                        </h3>
+                        {allResults.some((r: any) => r.noCopNumber) && (
+                          <p className="text-[16px] text-[#d32f2f] mt-2">
+                            ⚠️ Some voters found without COP numbers
+                          </p>
+                        )}
+                      </div>
+                    </Card>
+
+                    <Card className="p-6 sm:p-8 bg-[#fff3e0] border-4 border-[#ff9800]">
+                      <div className="text-center space-y-4">
+                        <h3 className="text-[20px] sm:text-[24px] text-[#e65100] font-semibold leading-relaxed">
+                          इस लड़ाई में, अपना बहुमूल्य वोट देकर श्री अरुण कुमार त्रिपाठी को प्रथम वरीयता (1) पर विजयी बनाने की कृपा करें।
+                        </h3>
+
+                        <div className="bg-white p-4 rounded-lg border-2 border-[#ff9800]">
+                          <h4 className="text-[18px] font-semibold text-[#0A2647] mb-3">
+                            COP नंबर की जांच करें:
+                          </h4>
+                          <div className="space-y-2 text-[16px]">
+                            <div className="flex items-center justify-center gap-3">
+                              <span className="text-[#388e3c] text-[20px]">✅</span>
+                              <span className="text-[#0A2647]">अगर COP नंबर मौजूद है, तो</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-3">
+                              <span className="text-[#d32f2f] text-[20px]">❌</span>
+                              <span className="text-[#0A2647]">कृपया COP नंबर जांचें।</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  </>
+                )}
+
+                {/* Display Results with Pagination */}
+                {allResults.slice((currentPage - 1) * resultsPerPage, currentPage * resultsPerPage).map((result: any, index: any) => (
                   <Card key={index} className={`p-6 sm:p-8 ${result.noCopNumber ? 'bg-[#ffebee] border-4 border-[#d32f2f]' : 'bg-white border-2 border-[#388e3c]'} hover:shadow-lg transition-shadow`}>
                     <div className="space-y-6">
                       {/* Not Found Header for Missing COP */}
@@ -675,7 +734,7 @@ export function VoterSearchSection({
                               <span className="text-white text-[20px]">✅</span>
                             </div>
                             <h4 className="text-[22px] text-[#388e3c] font-semibold">
-                              {allResults.length > 1 ? `Result ${index + 1} of ${allResults.length}` : 'Voter Details'}
+                              {allResults.length > 1 ? `Result ${(currentPage - 1) * resultsPerPage + index + 1} of ${allResults.length}` : 'Voter Details'}
                             </h4>
                           </div>
                         )}
@@ -723,6 +782,33 @@ export function VoterSearchSection({
                 </div>
               </Card>
                 ))}
+
+              {/* Pagination Controls - Only show for multiple results */}
+              {allResults.length > resultsPerPage && (
+                <div className="flex items-center justify-center gap-4 pt-4">
+                  <Button
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    size="lg"
+                    variant="outline"
+                    className="text-[18px] py-6 px-8 border-2 border-[#0A2647]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ← Previous
+                  </Button>
+                  <div className="text-[18px] font-semibold text-[#0A2647]">
+                    Page {currentPage} of {Math.ceil(allResults.length / resultsPerPage)}
+                  </div>
+                  <Button
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage >= Math.ceil(allResults.length / resultsPerPage)}
+                    size="lg"
+                    variant="outline"
+                    className="text-[18px] py-6 px-8 border-2 border-[#0A2647]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next →
+                  </Button>
+                </div>
+              )}
               </div>
             )}
 
