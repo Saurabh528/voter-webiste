@@ -34,23 +34,8 @@ export function sanitizeEnrollmentInput(input: string): string {
   }
 
   // Only allow alphanumeric characters, forward slash, and hyphens
-  let sanitized = input.replace(/[^a-zA-Z0-9\/\-]/g, '');
-
-  // Auto-format UP enrollment numbers to ensure 5 digits before the slash
-  // Pattern: UP followed by digits (1-5 digits) optionally followed by /year
-  const upPattern = /^UP(\d{1,4})(\/\d{1,4})?$/i;
-  const match = sanitized.match(upPattern);
-
-  if (match) {
-    const digits = match[1]; // The digits after UP
-    const yearPart = match[2] || ''; // The /year part if it exists
-
-    // Pad with leading zeros to make it 5 digits
-    if (digits.length < 5) {
-      const paddedDigits = digits.padStart(5, '0');
-      sanitized = `UP${paddedDigits}${yearPart}`;
-    }
-  }
+  // NO auto-padding - let user type freely, backend will handle normalization
+  const sanitized = input.replace(/[^a-zA-Z0-9\/\-]/g, '');
 
   return sanitized;
 }

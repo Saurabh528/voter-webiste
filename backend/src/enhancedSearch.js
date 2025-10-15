@@ -91,12 +91,28 @@ export async function fuzzySearchEnrollment(enrollmentNumber, limit = 100) {
   if (!isInputSafe(enrollmentNumber)) {
     throw new Error('Invalid input detected');
   }
-  
-  const sanitizedInput = sanitizeInput(enrollmentNumber);
+
+  let sanitizedInput = sanitizeInput(enrollmentNumber);
   if (!sanitizedInput) {
     return [];
   }
-  
+
+  // Normalize enrollment number: Pad UP enrollment numbers to 5 digits before slash
+  // Pattern: UP followed by 1-4 digits, optionally followed by /year
+  const upPattern = /^UP(\d{1,4})(\/\d{1,4})?$/i;
+  const match = sanitizedInput.match(upPattern);
+
+  if (match) {
+    const digits = match[1];
+    const yearPart = match[2] || '';
+
+    // Only pad if less than 5 digits (normalize for search)
+    if (digits.length < 5) {
+      const paddedDigits = digits.padStart(5, '0');
+      sanitizedInput = `UP${paddedDigits}${yearPart}`;
+    }
+  }
+
   const client = await pool.connect();
   
   try {
