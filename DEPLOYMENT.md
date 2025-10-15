@@ -149,9 +149,9 @@ Render automatically backs up your database daily (free tier).
 
 ### Database Indexes (Already Configured):
 ```sql
-- idx_enrollment_no (UNIQUE)
+- idx_enrolment_no (UNIQUE)
 - idx_name
-- idx_name_normalized  
+- idx_name_normalized
 - idx_district
 - idx_cop_no
 - idx_mobile

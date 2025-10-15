@@ -84,13 +84,13 @@ async function importVotersToPostgres() {
             
             await client.query(`
               INSERT INTO voters (
-                original_id, enrollment_no, enrollment_date, cop_no,
+                original_id, enrolment_no, enrollment_date, cop_no,
                 name, name_normalized, father_name, address,
                 district, voter_district, practice_bar,
                 normal_place_of_practice, date_of_birth,
                 mobile, member_name, remark, form_status, source_file
               ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-              ON CONFLICT (enrollment_no) DO NOTHING
+              ON CONFLICT (enrolment_no) DO NOTHING
             `, [
               (row.ID || '').toString(),
               enrollmentNo,
