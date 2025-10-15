@@ -17,6 +17,10 @@ import csv from 'csv-parser';
 import copyFrom from 'pg-copy-streams';
 import { pipeline } from 'stream/promises';
 import { Transform } from 'stream';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // Setup paths
 const __filename = fileURLToPath(import.meta.url);
@@ -112,9 +116,9 @@ async function importLargeDataset() {
     // Create COPY stream to PostgreSQL
     const copyStream = client.query(copyFrom.from(`
       COPY voters (
-        district, enrolment_no, reg_year, name, father_name, dob, address, age, 
-        community, phone, residence_no, office_no, office_address, chamber_address, 
-        email, cop_no, pincode, sub_district
+        district, enrolment_no, reg_year, name, father_name, dob, address, age,
+        community, phone, residence_no, office_no, office_address, chamber_address,
+        email, cop_no, pincode, sub_district, sl_no
       ) FROM STDIN WITH (FORMAT csv)
     `));
 
@@ -156,6 +160,7 @@ async function importLargeDataset() {
             sanitizeInput(row.COP_NO),
             sanitizeInput(row.pincode),
             sanitizeInput(row.SUB_DISTRICT),
+            sanitizeInput(row.Sl_No || ''),
           ];
 
           count++;

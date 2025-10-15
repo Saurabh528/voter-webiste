@@ -293,16 +293,17 @@ export async function getAllDistricts() {
  */
 export async function logSearch(searchType, searchParams, resultFound, resultCount) {
   const client = await pool.connect();
-  
+
   try {
     await client.query(
-      `INSERT INTO search_logs (search_type, enrollment_number, name_searched, district_searched, result_found, results_count)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
+      `INSERT INTO search_logs (search_type, enrollment_number, name_searched, district_searched, phone_number, result_found, results_count)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
         searchType,
         searchParams.enrollmentNumber || null,
         searchParams.name || null,
         searchParams.district || null,
+        searchParams.phoneNumber || null,
         resultFound,
         resultCount
       ]

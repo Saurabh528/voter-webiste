@@ -47,7 +47,8 @@ async function importFinalData() {
               email: sanitizeEmail(row.email),
               cop_no: sanitizeInput(row.COP_NO || ''),
               pincode: sanitizeInput(row.pincode || ''),
-              sub_district: sanitizeInput(row.SUB_DISTRICT || '')
+              sub_district: sanitizeInput(row.SUB_DISTRICT || ''),
+              sl_no: sanitizeInput(row.Sl_No || '')
             };
             
             batch.push(cleanRow);
@@ -102,27 +103,27 @@ async function importFinalData() {
 async function insertBatch(client, batch) {
   const values = [];
   const placeholders = [];
-  
+
   batch.forEach((row, index) => {
-    const baseIndex = index * 18;
-    placeholders.push(`($${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3}, $${baseIndex + 4}, $${baseIndex + 5}, $${baseIndex + 6}, $${baseIndex + 7}, $${baseIndex + 8}, $${baseIndex + 9}, $${baseIndex + 10}, $${baseIndex + 11}, $${baseIndex + 12}, $${baseIndex + 13}, $${baseIndex + 14}, $${baseIndex + 15}, $${baseIndex + 16}, $${baseIndex + 17}, $${baseIndex + 18})`);
-    
+    const baseIndex = index * 19;
+    placeholders.push(`($${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3}, $${baseIndex + 4}, $${baseIndex + 5}, $${baseIndex + 6}, $${baseIndex + 7}, $${baseIndex + 8}, $${baseIndex + 9}, $${baseIndex + 10}, $${baseIndex + 11}, $${baseIndex + 12}, $${baseIndex + 13}, $${baseIndex + 14}, $${baseIndex + 15}, $${baseIndex + 16}, $${baseIndex + 17}, $${baseIndex + 18}, $${baseIndex + 19})`);
+
     values.push(
       row.district, row.enrolment_no, row.reg_year, row.name, row.father_name,
       row.dob, row.address, row.age, row.community, row.phone,
       row.residence_no, row.office_no, row.office_address, row.chamber_address,
-      row.email, row.cop_no, row.pincode, row.sub_district
+      row.email, row.cop_no, row.pincode, row.sub_district, row.sl_no
     );
   });
-  
+
   const query = `
     INSERT INTO voters (
-      district, enrolment_no, reg_year, name, father_name, dob, address, age, 
-      community, phone, residence_no, office_no, office_address, chamber_address, 
-      email, cop_no, pincode, sub_district
+      district, enrolment_no, reg_year, name, father_name, dob, address, age,
+      community, phone, residence_no, office_no, office_address, chamber_address,
+      email, cop_no, pincode, sub_district, sl_no
     ) VALUES ${placeholders.join(', ')}
   `;
-  
+
   await client.query(query, values);
 }
 

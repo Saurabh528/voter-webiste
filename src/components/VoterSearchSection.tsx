@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -10,6 +10,7 @@ import { CheckCircle2, XCircle, Search, MessageSquare, Phone } from "lucide-reac
 import { upDistricts, districtMappings } from "../utils/translations";
 import { searchByEnrollment, searchByNameDistrict, getBilingualDistricts } from "../utils/api";
 import { sanitizeEnrollmentInput, sanitizeNameInput, isEnrollmentInputSafe, isNameInputSafe } from "../utils/inputSanitization";
+import { PhoneInput } from "./ui/phone-input";
 import type { VoterResult as ApiVoterResult } from "../utils/api";
 
 interface VoterResult {
@@ -19,6 +20,7 @@ interface VoterResult {
   address: string;
   district: string;
   noCopNumber?: boolean;
+  slNo?: string;
 }
 
 interface VoterSearchSectionProps {
@@ -74,6 +76,7 @@ export function VoterSearchSection({
   const [isSearching, setIsSearching] = useState(false);
   const [showPhonePrompt, setShowPhonePrompt] = useState(false);
   const [tempPhone, setTempPhone] = useState("");
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [pendingSearchType, setPendingSearchType] = useState<"enrollment" | "name-district" | null>(null);
   const [bilingualDistricts, setBilingualDistricts] = useState<Array<{
     english: string;
@@ -119,7 +122,7 @@ export function VoterSearchSection({
   const executeSearch = async () => {
     if (!pendingSearchType) return;
 
-    // Save phone number if provided
+    // Save phone number if provided (validation already done by PhoneInput)
     if (tempPhone.trim()) {
       setPhoneNumber(tempPhone);
     }
@@ -163,13 +166,14 @@ export function VoterSearchSection({
             copNumber: firstResult.copNumber?.toString() || '',
             address: firstResult.address,
             district: firstResult.district,
-            noCopNumber: response.noCopNumber || false
+            noCopNumber: response.noCopNumber || false,
+            slNo: firstResult.slNo
           });
         }
-        
+
         // Store total results count from backend
         setTotalResults((response as any).totalResults || 0);
-        
+
         // Store all results if available
         if ((response as any).allResults) {
           const results = (response as any).allResults.map((r: any) => ({
@@ -178,7 +182,8 @@ export function VoterSearchSection({
             copNumber: r.copNumber?.toString() || '',
             address: r.address,
             district: r.district,
-            noCopNumber: !r.copNumber || r.copNumber === null || r.copNumber === '' || response.noCopNumber || false
+            noCopNumber: !r.copNumber || r.copNumber === null || r.copNumber === '' || response.noCopNumber || false,
+            slNo: r.slNo
           }));
           setAllResults(results);
         } else {
@@ -188,7 +193,8 @@ export function VoterSearchSection({
             copNumber: response.data.copNumber?.toString() || '',
             address: response.data.address,
             district: response.data.district,
-            noCopNumber: response.noCopNumber || false
+            noCopNumber: response.noCopNumber || false,
+            slNo: response.data.slNo
           }]);
         }
       } else {
@@ -203,6 +209,7 @@ export function VoterSearchSection({
       setIsSearching(false);
       setPendingSearchType(null);
       setTempPhone("");
+      setIsPhoneValid(false);
     }
   };
 
@@ -245,13 +252,14 @@ export function VoterSearchSection({
             copNumber: firstResult.copNumber?.toString() || '',
             address: firstResult.address,
             district: firstResult.district,
-            noCopNumber: (response as any).noCopNumber || false
+            noCopNumber: (response as any).noCopNumber || false,
+            slNo: firstResult.slNo
           });
         }
-        
+
         // Store total results count from backend
         setTotalResults((response as any).totalResults || 0);
-        
+
         // Store all results if available
         if ((response as any).allResults) {
           const results = (response as any).allResults.map((r: any) => ({
@@ -260,7 +268,8 @@ export function VoterSearchSection({
             copNumber: r.copNumber?.toString() || '',
             address: r.address,
             district: r.district,
-            noCopNumber: !r.copNumber || r.copNumber === null || r.copNumber === '' || (response as any).noCopNumber || false
+            noCopNumber: !r.copNumber || r.copNumber === null || r.copNumber === '' || (response as any).noCopNumber || false,
+            slNo: r.slNo
           }));
           setAllResults(results);
         } else {
@@ -270,7 +279,8 @@ export function VoterSearchSection({
             copNumber: response.data.copNumber?.toString() || '',
             address: response.data.address,
             district: response.data.district,
-            noCopNumber: (response as any).noCopNumber || false
+            noCopNumber: (response as any).noCopNumber || false,
+            slNo: response.data.slNo
           }]);
         }
       } else {
@@ -284,6 +294,7 @@ export function VoterSearchSection({
     } finally {
       setIsSearching(false);
       setPendingSearchType(null);
+      setIsPhoneValid(false);
     }
   };
 
@@ -313,6 +324,7 @@ export function VoterSearchSection({
     setTotalResults(0);
     setTempPhone("");
     setPhoneNumber("");
+    setIsPhoneValid(false);
     setCurrentPage(1);
   };
 
@@ -320,32 +332,109 @@ export function VoterSearchSection({
     <section className="py-8 px-4 bg-white">
       <div className="max-w-4xl mx-auto">
         {!searchResult ? (
-          <Tabs defaultValue="enrollment" className="w-full" onValueChange={(value) => setActiveTab(value as "enrollment" | "name")}>
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto p-3 mb-6 gap-3 bg-gray-100 rounded-xl">
-              <TabsTrigger
-                value="enrollment"
-                className={`text-[20px] sm:text-[24px] py-5 px-4 font-bold transition-all duration-300 rounded-xl border-2 cursor-pointer touch-manipulation ${
-                  activeTab === "enrollment"
-                    ? "bg-white shadow-lg transform translate-y-[-2px] border-blue-500"
-                    : "bg-white/30 shadow-none border-gray-300 hover:bg-white/50 active:bg-white/70"
-                }`}
-              >
-                {activeTab === "enrollment" && "✅ "}{st.tabEnrollment}
-              </TabsTrigger>
-              <TabsTrigger
-                value="name"
-                className={`text-[20px] sm:text-[24px] py-5 px-4 font-bold transition-all duration-300 rounded-xl border-2 cursor-pointer touch-manipulation ${
-                  activeTab === "name"
-                    ? "bg-white shadow-lg transform translate-y-[-2px] border-blue-500"
-                    : "bg-white/30 shadow-none border-gray-300 hover:bg-white/50 active:bg-white/70"
-                }`}
-              >
-                {activeTab === "name" && "✅ "}{st.tabNameDistrict}
-              </TabsTrigger>
-            </TabsList>
+          <div className="w-full">
+            {/* Search Method Selection */}
+            <div className="mb-8">
+              <div className="text-center mb-6 p-4 bg-[#FFD700]/20 border-2 border-[#FFD700] rounded-xl">
+                <Label className="text-[20px] sm:text-[24px] text-[#0A2647] font-bold block leading-relaxed">
+                  {/[\u0900-\u097F]/.test(st.tabEnrollment)
+                    ? 'कृपया नीचे दिए गए बटन पर क्लिक करके चयन खोज विकल्प (नामांकन / नाम) चुनें।'
+                    : 'Select the search option (Enrollment/Name) by clicking the button below'
+                  }
+                </Label>
+                
+                {/* Pointing Arrows */}
+                <div className="flex justify-center items-center mt-4 gap-2">
+                  <div className="text-[36px] text-red-600 animate-bounce">👇</div>
+                  <div className="text-[36px] text-red-600 animate-bounce" style={{ animationDelay: '0.1s' }}>👇</div>
+                  <div className="text-[36px] text-red-600 animate-bounce" style={{ animationDelay: '0.2s' }}>👇</div>
+                </div>
+                
+                {/* CSS Arrow pointing down */}
+                <div className="flex justify-center mt-2">
+                  <div className="w-0 h-0 border-l-[20px] border-r-[20px] border-t-[30px] border-l-transparent border-r-transparent border-t-red-600 animate-pulse"></div>
+                </div>
+              </div>
+              
+              {/* Flashing Border Around Dropdown */}
+              <div className="relative p-2 border-4 border-red-500 rounded-xl animate-pulse bg-red-100/30">
+                <div className="absolute -top-1 -left-1 -right-1 -bottom-1 border-2 border-red-600 rounded-xl animate-ping"></div>
+                
+                <Select
+                  value={activeTab}
+                  onValueChange={(value) => setActiveTab(value as "enrollment" | "name")}
+                >
+                  <SelectTrigger
+                    className="w-full py-10 px-6 text-[22px] sm:text-[26px] font-bold border-4 border-[#0A2647] bg-gradient-to-r from-white to-[#FFD700]/10 hover:from-[#FFD700]/20 hover:to-[#FFD700]/30 focus:border-[#FFD700] focus:ring-4 focus:ring-[#FFD700]/30 rounded-xl shadow-2xl transition-all duration-300 cursor-pointer relative z-10"
+                    aria-label="Select search method"
+                  >
+                  <SelectValue
+                    placeholder={
+                      /[\u0900-\u097F]/.test(st.tabEnrollment)
+                        ? "👇 यहाँ क्लिक करें 👇"
+                        : "👇 Click Here 👇"
+                    }
+                  >
+                    <span className="flex items-center justify-between w-full">
+                      <span className="flex items-center gap-4">
+                        {activeTab === "enrollment" && (
+                          <>
+                            <span className="text-[32px]">📋</span>
+                            <span>{st.tabEnrollment}</span>
+                          </>
+                        )}
+                        {activeTab === "name" && (
+                          <>
+                            <span className="text-[32px]">👤</span>
+                            <span>{st.tabNameDistrict}</span>
+                          </>
+                        )}
+                      </span>
+                      <span className="text-[28px] text-[#0A2647]/60">▼</span>
+                    </span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent
+                  className="w-full border-4 border-[#0A2647] shadow-2xl bg-white rounded-xl z-50"
+                  position="popper"
+                  sideOffset={4}
+                >
+                  <div className="p-2">
+                    <SelectItem
+                      value="enrollment"
+                      className="text-[20px] sm:text-[22px] py-6 px-4 hover:bg-[#FFD700]/30 focus:bg-[#FFD700]/40 cursor-pointer rounded-lg mb-2 border-2 border-transparent hover:border-[#0A2647]/20 transition-all duration-200"
+                    >
+                      <div className="flex items-center gap-4 w-full">
+                        <span className="text-[28px]">📋</span>
+                        <span className="font-bold text-[#0A2647]">{st.tabEnrollment}</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem
+                      value="name"
+                      className="text-[20px] sm:text-[22px] py-6 px-4 hover:bg-[#FFD700]/30 focus:bg-[#FFD700]/40 cursor-pointer rounded-lg border-2 border-transparent hover:border-[#0A2647]/20 transition-all duration-200"
+                    >
+                      <div className="flex items-center gap-4 w-full">
+                        <span className="text-[28px]">👤</span>
+                        <span className="font-bold text-[#0A2647]">{st.tabNameDistrict}</span>
+                      </div>
+                    </SelectItem>
+                  </div>
+                </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Side Arrows pointing to dropdown */}
+              <div className="flex justify-between items-center mt-2 px-4">
+                <div className="text-[40px] text-red-600 animate-bounce" style={{ animationDelay: '0.3s' }}>👉</div>
+                <div className="text-[16px] text-red-600 font-bold animate-pulse">
+                  {/[\u0900-\u097F]/.test(st.tabEnrollment) ? 'यहाँ क्लिक करें!' : 'CLICK HERE!'}
+                </div>
+                <div className="text-[40px] text-red-600 animate-bounce" style={{ animationDelay: '0.3s' }}>👈</div>
+              </div>
+            </div>
 
             {/* Enrollment Number Search */}
-            <TabsContent value="enrollment">
+            {activeTab === "enrollment" && (
               <Card className="p-6 sm:p-8 border-2 border-[#0A2647]/20 shadow-lg">
                 <div className="space-y-6">
                   <div className="space-y-3">
@@ -392,10 +481,10 @@ export function VoterSearchSection({
                   </div>
                 </div>
               </Card>
-            </TabsContent>
+            )}
 
             {/* Name and District Search */}
-            <TabsContent value="name">
+            {activeTab === "name" && (
               <Card className="p-6 sm:p-8 border-2 border-[#0A2647]/20 shadow-lg">
                 <div className="space-y-6">
                   <div className="space-y-3">
@@ -552,8 +641,8 @@ export function VoterSearchSection({
                   </div>
                 </div>
               </Card>
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
         ) : (
           <div className="space-y-6">
             {/* Results Display */}
@@ -773,6 +862,14 @@ export function VoterSearchSection({
                         )}
                     </div>
 
+                      {/* Sl No */}
+                      {result.slNo && (
+                        <div className="space-y-2">
+                          <p className="text-[16px] text-[#0A2647]/70 font-medium">Sl No:</p>
+                          <p className="text-[22px] text-[#0A2647]">{result.slNo}</p>
+                        </div>
+                      )}
+
                       {/* Address */}
                     <div className="space-y-2">
                         <p className="text-[16px] text-[#0A2647]/70 font-medium">{rt.address}:</p>
@@ -856,18 +953,20 @@ export function VoterSearchSection({
                 <Phone className="w-8 h-8 text-[#0A2647]" />
               </div>
             </div>
-            <Input
-              type="tel"
-              placeholder={pt.phonePlaceholder}
+
+            <PhoneInput
               value={tempPhone}
-              onChange={(e) => setTempPhone(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && tempPhone.trim() && executeSearch()}
-              className="text-[18px] py-6 border-2"
+              onChange={setTempPhone}
+              onValidationChange={(isValid) => setIsPhoneValid(isValid)}
+              placeholder={pt.phonePlaceholder}
+              autoFocus
+              onEnter={() => isPhoneValid && executeSearch()}
             />
+
             <div className="space-y-3">
               <Button
                 onClick={executeSearch}
-                disabled={!tempPhone.trim()}
+                disabled={!tempPhone.trim() || !isPhoneValid}
                 className="w-full text-[18px] py-6 bg-[#0A2647] hover:bg-[#144272]"
               >
                 {pt.submitButton}

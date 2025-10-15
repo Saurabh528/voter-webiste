@@ -114,18 +114,18 @@ app.get('/api/districts', async (req, res) => {
 app.post('/api/search/enrollment', async (req, res) => {
   try {
     const { enrollmentNumber, phoneNumber } = req.body;
-    
+
     if (!enrollmentNumber) {
-      return res.status(400).json({ 
-        error: 'Enrollment number is required' 
+      return res.status(400).json({
+        error: 'Enrollment number is required'
       });
     }
 
     // Use enhanced fuzzy search
     const results = await fuzzySearchEnrollment(enrollmentNumber.trim(), 100);
-    
-    // Log the search
-    await logSearch('enrollment', { enrollmentNumber }, results.length > 0, results.length);
+
+    // Log the search with phone number
+    await logSearch('enrollment', { enrollmentNumber, phoneNumber }, results.length > 0, results.length);
 
     const found = results.length > 0;
 
@@ -148,7 +148,8 @@ app.post('/api/search/enrollment', async (req, res) => {
               phone: voter.phone,
               regYear: voter.reg_year,
               age: voter.age,
-              community: voter.community
+              community: voter.community,
+              slNo: voter.sl_no
             }))
           });
         } else {
@@ -165,7 +166,8 @@ app.post('/api/search/enrollment', async (req, res) => {
               phone: voter.phone,
               regYear: voter.reg_year,
               age: voter.age,
-              community: voter.community
+              community: voter.community,
+              slNo: voter.sl_no
             }
           });
         }
@@ -240,21 +242,21 @@ app.post('/api/search/name-district', async (req, res) => {
     query += ` ORDER BY name LIMIT 50`; // Limit to 50 results for performance
     
     console.log(`Searching with query params:`, params);
-    
+
     const result = await client.query(query, params);
-    
-    // Log search to database
+
+    // Log search to database with phone number
     await client.query(`
       INSERT INTO search_logs (
-        search_type, name_searched, district_searched, phone_number, 
+        search_type, name_searched, district_searched, phone_number,
         result_found, results_count
       ) VALUES ($1, $2, $3, $4, $5, $6)
     `, [
-      'name-district', 
-      name, 
-      district, 
-      phoneNumber || null, 
-      result.rows.length > 0, 
+      'name-district',
+      name,
+      district,
+      phoneNumber || null,
+      result.rows.length > 0,
       result.rows.length
     ]);
 
@@ -266,9 +268,10 @@ app.post('/api/search/name-district', async (req, res) => {
         address: voter.address,
         district: voter.district,
         fatherName: voter.father_name,
-        mobile: voter.mobile
+        mobile: voter.phone,
+        slNo: voter.sl_no
       }));
-      
+
       res.json({
         found: true,
         data: allMatches[0],

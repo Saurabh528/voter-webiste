@@ -74,6 +74,7 @@ export async function initializeSchema() {
         cop_no VARCHAR(50),
         pincode VARCHAR(10),
         sub_district VARCHAR(100),
+        sl_no VARCHAR(50),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);

@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Card } from "./ui/card";
-import { Phone, X, AlertCircle } from "lucide-react";
+import { PhoneInput } from "./ui/phone-input";
+import { Phone, X } from "lucide-react";
 import { capturePhone } from "../utils/api";
-import { validateIndianMobileNumber, cleanPhoneInput, isInputSafe } from "../utils/phoneValidation";
 
 interface PhoneCaptureModalProps {
   onClose: () => void;
@@ -20,22 +19,12 @@ interface PhoneCaptureModalProps {
 export function PhoneCaptureModal({ onClose, translations: t }: PhoneCaptureModalProps) {
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isValid, setIsValid] = useState(false);
   const [validationError, setValidationError] = useState("");
 
-  const handlePhoneChange = (value: string) => {
-    // SECURITY: Check if input is safe first
-    if (!isInputSafe(value)) {
-      setValidationError("Invalid characters detected. Only numbers are allowed.");
-      return;
-    }
-    
-    const cleaned = cleanPhoneInput(value);
-    setPhone(cleaned);
-    
-    // Clear validation error when user starts typing
-    if (validationError) {
-      setValidationError("");
-    }
+  const handleValidationChange = (valid: boolean, error?: string) => {
+    setIsValid(valid);
+    setValidationError(error || "");
   };
 
   const handleSubmit = async () => {
@@ -43,40 +32,37 @@ export function PhoneCaptureModal({ onClose, translations: t }: PhoneCaptureModa
       setValidationError("Phone number is required");
       return;
     }
-    
-    // Validate the phone number
-    const validation = validateIndianMobileNumber(phone);
-    if (!validation.isValid) {
-      setValidationError(validation.error || "Invalid phone number");
-      return;
+
+    if (!isValid) {
+      return; // Don't submit if validation failed
     }
-    
+
     try {
       const response = await capturePhone({
         phoneNumber: phone.trim(),
         source: 'modal'
       });
-      
+
       if (response && !response.isValid) {
         setValidationError(response.error || "Invalid phone number");
         return;
       }
-      
+
       console.log("Phone captured:", phone);
       setSubmitted(true);
-      
+
       setTimeout(() => {
         onClose();
       }, 1500);
     } catch (error: any) {
       console.error("Error capturing phone:", error);
-      
+
       // Check if it's a validation error from the backend
       if (error.response && error.response.data && error.response.data.error) {
         setValidationError(error.response.data.error);
         return;
       }
-      
+
       // For other errors, still close modal
       setSubmitted(true);
       setTimeout(() => {
@@ -120,31 +106,19 @@ export function PhoneCaptureModal({ onClose, translations: t }: PhoneCaptureModa
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Input
-                  type="tel"
-                  placeholder={t.phonePlaceholder}
+                <PhoneInput
                   value={phone}
-                  onChange={(e) => handlePhoneChange(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                  className={`text-[20px] py-7 px-4 border-2 ${
-                    validationError 
-                      ? "border-red-500 focus:border-red-500" 
-                      : "border-[#0A2647]/20 focus:border-[#FFD700]"
-                  }`}
-                  maxLength={10}
+                  onChange={setPhone}
+                  onValidationChange={handleValidationChange}
+                  placeholder={t.phonePlaceholder}
+                  autoFocus
+                  onEnter={handleSubmit}
                 />
-                
-                {validationError && (
-                  <div className="flex items-center gap-2 text-red-600 text-[16px]">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{validationError}</span>
-                  </div>
-                )}
               </div>
 
               <Button
                 onClick={handleSubmit}
-                disabled={!phone.trim()}
+                disabled={!phone.trim() || !isValid}
                 className="w-full text-[20px] py-7 bg-[#0A2647] hover:bg-[#144272] text-white"
               >
                 {t.submitButton}

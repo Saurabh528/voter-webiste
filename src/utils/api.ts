@@ -24,6 +24,7 @@ interface VoterResult {
   copNumber: string;
   address: string;
   district: string;
+  slNo?: string;
   fatherName?: string;
   mobile?: string;
 }
