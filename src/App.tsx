@@ -145,12 +145,12 @@ export default function App() {
                   <div className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56">
                     {/* Photo container with circular mask and border */}
                     <img
-                      src="/IMG-20230417-WA0001.jpg"
+                      src="/IMG-20230417-WA0001.png"
                       alt="Shri Arun Kumar Tripathi"
                       className="w-full h-full rounded-full border-4 border-[#FFD700] shadow-2xl"
                       style={{
                         objectFit: 'cover',
-                        objectPosition: '50% 30%',
+                        objectPosition: 'center',
                         aspectRatio: '1 / 1'
                       }}
                     />

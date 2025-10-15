@@ -82,6 +82,7 @@ export function VoterSearchSection({
     value: string;
   }>>([]);
   const [districtsLoaded, setDistrictsLoaded] = useState(false);
+  const [activeTab, setActiveTab] = useState<"enrollment" | "name">("enrollment");
 
   // Fetch bilingual districts on mount
   useEffect(() => {
@@ -316,13 +317,27 @@ export function VoterSearchSection({
     <section className="py-8 px-4 bg-white">
       <div className="max-w-4xl mx-auto">
         {!searchResult ? (
-          <Tabs defaultValue="enrollment" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto p-2 mb-6 gap-2">
-              <TabsTrigger value="enrollment" className="text-[16px] sm:text-[18px] py-4 px-3">
-                {st.tabEnrollment}
+          <Tabs defaultValue="enrollment" className="w-full" onValueChange={(value) => setActiveTab(value as "enrollment" | "name")}>
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto p-3 mb-6 gap-3 bg-gray-100 rounded-xl">
+              <TabsTrigger
+                value="enrollment"
+                className={`text-[20px] sm:text-[24px] py-5 px-4 font-bold transition-all duration-300 rounded-xl border-2 cursor-pointer touch-manipulation ${
+                  activeTab === "enrollment"
+                    ? "bg-white shadow-lg transform translate-y-[-2px] border-blue-500"
+                    : "bg-white/30 shadow-none border-gray-300 hover:bg-white/50 active:bg-white/70"
+                }`}
+              >
+                {activeTab === "enrollment" && "✅ "}{st.tabEnrollment}
               </TabsTrigger>
-              <TabsTrigger value="name" className="text-[16px] sm:text-[18px] py-4 px-3">
-                {st.tabNameDistrict}
+              <TabsTrigger
+                value="name"
+                className={`text-[20px] sm:text-[24px] py-5 px-4 font-bold transition-all duration-300 rounded-xl border-2 cursor-pointer touch-manipulation ${
+                  activeTab === "name"
+                    ? "bg-white shadow-lg transform translate-y-[-2px] border-blue-500"
+                    : "bg-white/30 shadow-none border-gray-300 hover:bg-white/50 active:bg-white/70"
+                }`}
+              >
+                {activeTab === "name" && "✅ "}{st.tabNameDistrict}
               </TabsTrigger>
             </TabsList>
 
