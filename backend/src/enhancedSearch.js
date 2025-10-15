@@ -13,15 +13,33 @@ function sanitizeInput(input) {
   if (!input || typeof input !== 'string') {
     return '';
   }
-  
+
   // Remove dangerous characters and patterns
-  return input
+  let sanitized = input
     .replace(/[<>'"`;]/g, '') // Remove HTML/XML and SQL dangerous chars
     .replace(/javascript:/gi, '') // Remove javascript: protocol
     .replace(/on\w+\s*=/gi, '') // Remove event handlers
     .replace(/(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)/gi, '') // Remove SQL keywords
     .trim()
     .substring(0, 255); // Limit length
+
+  // Auto-format UP enrollment numbers to ensure 5 digits before the slash
+  // Pattern: UP followed by digits (1-4 digits) optionally followed by /year
+  const upPattern = /^UP(\d{1,4})(\/\d{1,4})?$/i;
+  const match = sanitized.match(upPattern);
+
+  if (match) {
+    const digits = match[1]; // The digits after UP
+    const yearPart = match[2] || ''; // The /year part if it exists
+
+    // Pad with leading zeros to make it 5 digits
+    if (digits.length < 5) {
+      const paddedDigits = digits.padStart(5, '0');
+      sanitized = `UP${paddedDigits}${yearPart}`;
+    }
+  }
+
+  return sanitized;
 }
 
 /**

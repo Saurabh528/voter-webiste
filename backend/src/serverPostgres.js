@@ -261,7 +261,7 @@ app.post('/api/search/name-district', async (req, res) => {
     if (result.rows.length > 0) {
       const allMatches = result.rows.map(voter => ({
         name: voter.name,
-        enrollmentNumber: voter.enrollment_no,
+        enrollmentNumber: voter.enrolment_no,
         copNumber: voter.cop_no,
         address: voter.address,
         district: voter.district,
