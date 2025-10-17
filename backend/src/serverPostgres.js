@@ -113,7 +113,7 @@ app.get('/api/districts', async (req, res) => {
 // Search by enrollment number with fuzzy matching
 app.post('/api/search/enrollment', async (req, res) => {
   try {
-    const { enrollmentNumber, phoneNumber } = req.body;
+    let { enrollmentNumber, phoneNumber } = req.body;
 
     if (!enrollmentNumber) {
       return res.status(400).json({
@@ -121,8 +121,16 @@ app.post('/api/search/enrollment', async (req, res) => {
       });
     }
 
+    // Normalize enrollment number: convert yyyy to yy format
+    // Example: UP26290/2025 -> UP26290/25
+    enrollmentNumber = enrollmentNumber.trim();
+    enrollmentNumber = enrollmentNumber.replace(/\/(\d{4})$/, (match, year) => {
+      // Convert 4-digit year to 2-digit year
+      return '/' + year.slice(-2);
+    });
+
     // Use enhanced fuzzy search
-    const results = await fuzzySearchEnrollment(enrollmentNumber.trim(), 100);
+    const results = await fuzzySearchEnrollment(enrollmentNumber, 100);
 
     // Log the search with phone number
     await logSearch('enrollment', { enrollmentNumber, phoneNumber }, results.length > 0, results.length);
