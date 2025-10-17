@@ -312,7 +312,7 @@ export function VoterSearchSection({
   };
 
   const callContact = () => {
-    window.location.href = "tel:+919721777720";
+    window.location.href = `tel:+91${rt.contactNumber}`;
   };
 
   const handleReset = () => {
@@ -659,12 +659,12 @@ export function VoterSearchSection({
                         {rt.notRegisteredContact}
                       </p>
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                        <a 
-                          href="tel:+919721777720"
+                        <a
+                          href={`tel:+91${rt.contactNumber}`}
                           className="text-[28px] sm:text-[32px] text-[#0A2647] hover:text-[#d32f2f] transition-colors flex items-center gap-3"
                         >
                           <Phone className="w-8 h-8" />
-                          +91 97217 77720
+                          +91 {rt.contactNumber}
                         </a>
                         <Button
                           onClick={callContact}
@@ -713,11 +713,11 @@ export function VoterSearchSection({
                           </p>
                           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                             <a
-                              href="tel:+919721777720"
+                              href={`tel:+91${rt.contactNumber}`}
                               className="text-[28px] sm:text-[32px] text-[#0A2647] hover:text-[#d32f2f] transition-colors flex items-center gap-3"
                             >
                               <Phone className="w-8 h-8" />
-                              +91 97217 77720
+                              +91 {rt.contactNumber}
                             </a>
                             <Button
                               onClick={callContact}
@@ -793,12 +793,12 @@ export function VoterSearchSection({
                                 {rt.notRegisteredContact}
                               </p>
                               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                                <a 
-                                  href="tel:+919721777720"
+                                <a
+                                  href={`tel:+91${rt.contactNumber}`}
                                   className="text-[28px] sm:text-[32px] text-[#0A2647] hover:text-[#d32f2f] transition-colors flex items-center gap-3"
                                 >
                                   <Phone className="w-8 h-8" />
-                                  +91 97217 77720
+                                  +91 {rt.contactNumber}
                                 </a>
                                 <Button
                                   onClick={callContact}

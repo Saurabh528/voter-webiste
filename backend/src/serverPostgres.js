@@ -134,14 +134,14 @@ app.post('/api/search/enrollment', async (req, res) => {
       // Let the frontend handle the styling based on COP number availability
       if (results.length > 0) {
         if (results.length > 1) {
-          res.json({
-            found: true,
-            multipleResults: true,
-            totalResults: results.length,
-            allResults: results.map(voter => ({
+          const allResults = results.map(voter => {
+            const copValue = voter.cop_no;
+            const hasCOP = copValue !== null && copValue !== undefined && copValue !== '';
+
+            return {
               name: voter.name,
               enrollmentNumber: voter.enrolment_no,
-              copNumber: voter.cop_no, // This will be null/empty for voters without COP numbers
+              copNumber: voter.cop_no,
               address: voter.address,
               district: voter.district,
               fatherName: voter.father_name,
@@ -149,13 +149,26 @@ app.post('/api/search/enrollment', async (req, res) => {
               regYear: voter.reg_year,
               age: voter.age,
               community: voter.community,
-              slNo: voter.sl_no
-            }))
+              slNo: voter.sl_no,
+              noCopNumber: !hasCOP
+            };
+          });
+
+          res.json({
+            found: true,
+            multipleResults: true,
+            totalResults: results.length,
+            allResults: allResults
           });
         } else {
           const voter = results[0];
+          // Check if COP number is missing/null/empty
+          const copValue = voter.cop_no;
+          const hasCOP = copValue !== null && copValue !== undefined && copValue !== '';
+
           res.json({
             found: true,
+            noCopNumber: !hasCOP,
             data: {
               name: voter.name,
               enrollmentNumber: voter.enrolment_no,
@@ -261,22 +274,29 @@ app.post('/api/search/name-district', async (req, res) => {
     ]);
 
     if (result.rows.length > 0) {
-      const allMatches = result.rows.map(voter => ({
-        name: voter.name,
-        enrollmentNumber: voter.enrolment_no,
-        copNumber: voter.cop_no,
-        address: voter.address,
-        district: voter.district,
-        fatherName: voter.father_name,
-        mobile: voter.phone,
-        slNo: voter.sl_no
-      }));
+      const allMatches = result.rows.map(voter => {
+        const copValue = voter.cop_no;
+        const hasCOP = copValue !== null && copValue !== undefined && copValue !== '';
+
+        return {
+          name: voter.name,
+          enrollmentNumber: voter.enrolment_no,
+          copNumber: voter.cop_no,
+          address: voter.address,
+          district: voter.district,
+          fatherName: voter.father_name,
+          mobile: voter.phone,
+          slNo: voter.sl_no,
+          noCopNumber: !hasCOP
+        };
+      });
 
       res.json({
         found: true,
         data: allMatches[0],
         allResults: allMatches,
-        totalResults: result.rows.length
+        totalResults: result.rows.length,
+        noCopNumber: allMatches[0].noCopNumber
       });
     } else {
       res.json({

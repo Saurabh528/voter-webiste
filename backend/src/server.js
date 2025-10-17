@@ -133,8 +133,13 @@ app.post('/api/search/enrollment', async (req, res) => {
     );
 
     if (result) {
+      // Check if COP number is missing/null/empty
+      const copValue = result.copNo;
+      const hasCOP = copValue !== null && copValue !== undefined && copValue !== '';
+
       res.json({
         found: true,
+        noCopNumber: !hasCOP,
         data: {
           name: result.name,
           enrollmentNumber: result.enrollmentNo,
@@ -236,21 +241,29 @@ app.post('/api/search/name-district', async (req, res) => {
 
     if (results.length > 0) {
       // Return ALL matches
-      const allMatches = results.map(result => ({
-        name: result.name,
-        enrollmentNumber: result.enrollmentNo,
-        copNumber: result.copNo,
-        address: result.address,
-        district: result.district,
-        fatherName: result.fatherName,
-        mobile: result.mobile
-      }));
-      
+      const allMatches = results.map(result => {
+        // Check if COP number is missing/null/empty for each result
+        const copValue = result.copNo;
+        const hasCOP = copValue !== null && copValue !== undefined && copValue !== '';
+
+        return {
+          name: result.name,
+          enrollmentNumber: result.enrollmentNo,
+          copNumber: result.copNo,
+          address: result.address,
+          district: result.district,
+          fatherName: result.fatherName,
+          mobile: result.mobile,
+          noCopNumber: !hasCOP
+        };
+      });
+
       res.json({
         found: true,
         data: allMatches[0], // First result for backward compatibility
         allResults: allMatches, // All matching results
-        totalMatches: results.length
+        totalResults: results.length,
+        noCopNumber: allMatches[0].noCopNumber // Flag for first result
       });
     } else {
       res.json({
