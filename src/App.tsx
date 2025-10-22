@@ -65,7 +65,7 @@ export default function App() {
                 </div>
               </div>
               <div>
-                <h1 className="text-[16px] sm:text-[20px] leading-tight">
+                <h1 className="text-[16px] sm:text-[20px] leading-tight" translate="no">
                   {t.hero.mainTitle}
                 </h1>
               </div>
@@ -147,6 +147,7 @@ export default function App() {
                     <img
                       src="/IMG-20230417-WA0001.png"
                       alt="Shri Arun Kumar Tripathi"
+                      translate="no"
                       className="w-full h-full rounded-full border-4 border-[#FFD700] shadow-2xl"
                       style={{
                         objectFit: 'cover',
@@ -160,7 +161,7 @@ export default function App() {
 
               {/* Candidate Name */}
               <div className="space-y-3">
-                <h2 className="text-[32px] sm:text-[40px] md:text-[44px] font-bold tracking-tight">
+                <h2 className="text-[32px] sm:text-[40px] md:text-[44px] font-bold tracking-tight" translate="no">
                   <span className="text-[#FFD700]">{t.hero.candidateName}</span>
                 </h2>
                 <div className="w-24 h-1.5 bg-[#FFD700] mx-auto rounded-full"></div>
@@ -319,9 +320,9 @@ export default function App() {
       <footer className="bg-[#0A2647] text-white py-8 px-4 border-t border-white/20">
         <div className="max-w-4xl mx-auto text-center space-y-4">
           <div className="text-[24px]">⚖️</div>
-          <h3 className="text-[20px]">{t.hero.candidateName}</h3>
+          <h3 className="text-[20px]" translate="no">{t.hero.candidateName}</h3>
           <p className="text-[16px] text-white/80">
-            {language === "hi" 
+            {language === "hi"
               ? "बार कौंसिल ऑफ उत्तर प्रदेश चुनाव 2026"
               : "Bar Council of Uttar Pradesh Elections 2026"
             }
