@@ -303,8 +303,8 @@ app.post('/api/search/name-district', async (req, res) => {
         found: true,
         data: allMatches[0],
         allResults: allMatches,
-        totalResults: result.rows.length,
-        noCopNumber: allMatches[0].noCopNumber
+        totalResults: result.rows.length
+        // Don't set top-level noCopNumber - each result has its own flag
       });
     } else {
       res.json({
